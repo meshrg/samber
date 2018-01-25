@@ -1,165 +1,236 @@
-RadioHead Packet Radio library for embedded microprocessors
+Gateway IP para red LoRa con base de datos SQL
 ===========================================================
+Envio y recepcion de Gps apartir del puerto UART De la shield LoRa Dragino HAT/GPS,Despues de la recepcion de la informacion, se almacena en una base de datos Mysql de manera de respaldo de información
 
-###Version 1.67
-
-This is a fork of the original RadioHead Packet Radio library for embedded microprocessors. It provides a complete object-oriented library for sending and receiving packetized messages via a variety of common data radios and other transports on a range of embedded microprocessors.
-
-**Please read the full documentation and licensing from the original author [site][3]**
-
-### features added with this fork
 =================================
 
-**Compatible with boards**    
+**Compatible Con**    
 
-[LoRasPI][10], [Raspberry PI Lora Gateway][12], [Dragino Lora GPS HAT][13]
+ [Dragino Lora GPS HAT][13]
 
-<img src="https://raw.githubusercontent.com/hallard/LoRasPI/master/images/LoRasPI-on-Pi.jpg" height="25%" width="25%" alt="LoRasPI">&nbsp;
-<img src="https://raw.githubusercontent.com/hallard/RPI-Lora-Gateway/master/images/RPI-Lora-Gateway-mounted.jpg" height="25%" width="25%" alt="Raspberry PI Lora Gateway/Node">&nbsp;
 <img src="http://wiki.dragino.com/images/d/d6/Lora_GPS_HAT.png" height="25%" width="25%" alt="Raspberry PI Lora Gateway/Node">   
 
-- Added moteino modem setting on RF69 to be compatible with lowpowerlab RF69 configuration library
-- Added possibility to work with no IRQ connected for RF69 and RF95
-  - for example to get one more GPIO free 
-  - on Raspberry Pi, we do not have `attachInterrupt()` like with bcm2835 library
-- Added samples for multiples Raspberry Pi boards with RF69 and RF95 modules such as 
-  - [LoRasPI][10], simple RFM9x or RFM69HCW shield
-  - [iC880A or Linklabs Raspberry PI shield][11] with RFM9x or RFM69HCW onboard 
-  - [Raspberry PI Lora Gateway][12] with multiple RFM9x or RFM69HCW shield
-  - [Dragino Lora shield][13]
-  - Sample code are in [rf95][21], [rf69][20], [nrf24][22] and [multi_server][23], note that old sample NRF24 sample has been moved to nrf24 folder for consistency.
-- Added 2 samples test tools (for Raspberry PI) do detect RF69 and RF95 modules and check IRQ rising edge
-  - [spi_scan][9] sample code, scan and try to detect connected modules
-  - [irq_test][8] sample code, check a rising edge on a GPIO
 
-Sample code for Raspberry PI is located under [RadioHead/examples/raspi][7] folder.
 
-### Installation on Raspberry PI
+### Instalacion en Raspberry PI
+================================
+En primer punto es diferente la instalacion para el server como para el client, sin embargo exiten algunos pasos iniciales que se deben realizar en las dos Raspberrys
+
+
+
+## Cliente 
 ================================
 
-Clone repository
+Clonar el repositorio
 ```shell
-git clone https://github.com/hallard/RadioHead
+https://github.com/cidte/samber.git
 ```
 
-**Connection and pins definition**
 
-Boards pins (Chip Select, IRQ line, Reset and LED) definition are set in the new [RadioHead/examples/raspi/RasPiBoards.h][24] file. In your code, you need to define board used and then, include the file definition like this
-```cpp
-// LoRasPi board 
-#define BOARD_LORASPI
 
-// Now we include RasPi_Boards.h so this will expose defined 
-// constants with CS/IRQ/RESET/on board LED pins definition
-#include "../RasPiBoards.h"
-
-// Your code start here
-#ifdef RF_RST_PIN
-// Blah blah do reset line
-#endif
-
-```
-
-Then in your code you'll have exposed RF_CS_PIN, RF_IRQ_PIN, RF_RST_PIN and RF_LED_PIN and you'll be able to do some `#ifdef RF_LED_LIN` for example. See [rf95_client][25] sample code.
-
-So you have 3 options to define the pins you want 
-
-- The board you have is already defined so just need to define it your source code (as explained above)
-- You can add your board into [RasPiBoards.h][24] and then define it your source code as above
-- You can manually define pins in your code and remove the board definition and `#include "../RasPiBoards.h"`
-
-To go further with examples :
-
-go to example folder here spi_scan
+##Server
+================================
+Clonar el repositorio
 ```shell
-cd RadioHead/examples/raspi/spi_scan
+https://github.com/cidte/samber.git
 ```
-Build executable
+**Base de datos**
+escribir en la linea de comandos 
 ```shell
-root@pi03(rw):~/RadioHead/examples/raspi/spi_scan# make
-g++ -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY -c -I../../.. spi_scan.c
-g++ spi_scan.o -lbcm2835  -o spi_scan
-root@pi03(rw):~/RadioHead/examples/raspi/spi_scan
+sudo apt-get install mysql-server
 ```
-And run 
-```shell
-root@pi03(rw):~/RadioHead/examples/raspi/spi_scan# ./spi_scan
-Checking register(0x42) with CS=GPIO06 => Nothing!
-Checking register(0x10) with CS=GPIO06 => Nothing!
-Checking register(0x42) with CS=GPIO08 => SX1276 RF95/96 (V=0x12)
-Checking register(0x10) with CS=GPIO08 => Nothing!
-Checking register(0x42) with CS=GPIO07 => Nothing!
-Checking register(0x10) with CS=GPIO07 => Nothing!
-Checking register(0x42) with CS=GPIO26 => Nothing!
-Checking register(0x10) with CS=GPIO26 => Nothing!
-```
-And voila! with [LoRasPi][10] board RFM95 dedected on SPI with GPIO8 (CE0)
 
-
-If I'm doing same test with [PI Lora Gateway][12] with 2 RFM95 (one 433MHz and one 868MHz) and one RFMHW69 433MHz on board like this    
-
-<img src="https://raw.githubusercontent.com/hallard/RPI-Lora-Gateway/master/images/RPI-Lora-Gateway-mounted.jpg" height="40%" width="40%" alt="Raspberry PI Lora Gateway/Node">   
-
-Here are the results when trying to detect the onboard modules:
+Dado que durante la instalación de MySQL se crea un root sin contraseña, es necesario
+eliminar la cuenta creada por defecto y crear una con contraseña.
+Para ello se ingresa a MySQL con privilegios de superusuario mediante el usuario root.
 
 ```shell
-root@pi01(rw):~/RadioHead/examples/raspi/spi_scan# ./spi_scan
-Checking register(0x42) with CS=GPIO06 => Nothing!
-Checking register(0x10) with CS=GPIO06 => Nothing!
-Checking register(0x42) with CS=GPIO08 => SX1276 RF95/96 (V=0x12)
-Checking register(0x10) with CS=GPIO08 => Nothing!
-Checking register(0x42) with CS=GPIO07 => SX1276 RF95/96 (V=0x12)
-Checking register(0x10) with CS=GPIO07 => Nothing!
-Checking register(0x42) with CS=GPIO26 => Unknown (V=0x01)
-Checking register(0x10) with CS=GPIO26 => SX1231 RFM69 (V=0x24)
+$ sudo mysql -u root
 ```
 
-Voila! 3 modules are seen, now let's try listenning packets with PI Lora [Gateway][12].
+Una vez conectado al gestor de base de datos se procede a eliminar la cuenta de root de
+MySQL.
 
-My setup has another Raspberry Pi with RFM95 868MHZ [LoRasPI][10] shield running [`rf95_client`][25] sample and some [ULPnode][6] prototypes always running with on board RFM69 configured as Group ID 69 on 433MHz. I don't have a Lora 433MHz sender running so we won't receive anything on this one.
+```shell
+MariaDB> DROP USER 'root'@'localhost';
+```
 
-Here the results starting from scratch
+El siguiente comando crea una nueva cuenta de root con acceso desde localhost y con
+contraseña.
 
-**Client side**    
+```shell
+MariaDB>CREATE USER 'Samber'@'localhost' IDENTIFIED BY 'cidte';
 
-<img src="https://raw.githubusercontent.com/hallard/RadioHead/master/examples/raspi/pictures/rf95_client.png" alt="RF95 client">    
+```
 
-**multi server side**    
+El comando de GRANT ALL PRIVILEGES otorga privilegios de crear, editar y eliminar tablas
+de la base de datos al usuario que se le indique.
 
-<img src="https://raw.githubusercontent.com/hallard/RadioHead/master/examples/raspi/pictures/multi_server.png" alt="RF95 client">   
+```shell
+MariaDB>GRANT ALL PRIVILEGES ON *.* TO 'Samber'@'localhost';
+```
 
-It works! 
 
-### Difference with original Author repo
+Para actualizar los privilegios y efectuar los cambios en el usuario se utiliza el comando
+FLUSH PRIVILEGES.
+
+```shell
+MariaDB> FLUSH PRIVILEGES;
+```
+
+Una vez terminadas las modificaciones en el usuario se termina la conexión con el gestor de
+base de datos.
+
+```shell
+MariaDB> quit
+```
+
+
+
+**INSTALACIÓN DE SERVIDOR HTTP APACHE**
+
+El servidor HTTP Apache se instala a través del gestor de paquetes de Linux.
+```shell
+$ sudo apt-get install apache2
+```
+
+Una vez finalizada la instalación, se puede corroborar la correcta instalación del servicio
+accediendo a través de un navegador a la dirección de localhost. La página por defecto de apache
+se muestra en la Figura 1.
+
+
+**INSTALANDO PHP**
+Al instalar PHP se deben agregar los conectores con apache y mysql.
+
+```shell
+$ sudo apt-get install php7.0 libapache2-mod-php7.0 php7.0-mysql
+```
+
+
+**INSTALANDO PHP MY ADMIN**
+phpMyAdmin permite manipular bases de datos de MySQL a través de una interfaz web de
+forma gráfica, utilizando herramientas php y apache.
+Con ayuda del gestor de paquetes de Linux se instala phpMyAdmin.
+
+```shell
+$ sudo apt-get install phpmyadmin
+```
+
+
+Durante la instalación, se elige usar Apache como servidor web.
+
+
+Adicionalmente preguntará si se desea instalar la base de datos dbconfig-common, a lo que
+se le indicará que No.
+
+
+un segmento de red o una dirección IP en específico.
+Para habilitar las peticiones remotas se debe de modificar el archivo etc con el siguiente comando 
+
+
+```shell
+$ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+El parámetro bi nd −ad d r ess = 127,0,0,1 delimita las direcciones IP donde se pueden realizar
+las conexiones entrantes, para permitir la conexión desde cualquier dirección IP este se cambia
+por 0,0,0,0.
+bind-address= 0.0.0.0
+
+Para que los cambios surtan efecto se debe de reiniciar el servicio de MySQL.
+```shell
+$ sudo systemctl restart mysql.service
+$ sudo systemctl restart mariadb.service
+```
+
+Para verificar que los cambios funcionaron se consulta si el puerto 3306 de MySQL está
+abierto.
+
+```shell
+$ sudo netstat -anp | grep 3306
+```
+
+Mostrando como resultado que el puerto de MySQL está en escucha
+
+
+```shell
+pi@raspserver:~ $ sudo netstat -anp | grep 3306
+tcp 0 0 0.0.0.0:3306 0.0.0.0:* LISTEN 529/mysqld
+```
+
+
+
+**CREAR BASE DE DATOS  DENTRO DE MYSQL**
+
+Entrar a una base de datos mysql 
+
+Con el comando siguientes es para acceder a la base de datos
+```shell
+ mysql -u Samber -p
+```
+nos pedira que ingresar la contraseña.
+
+
+– Primero es necesario ver las bases de datos actuales, con el comando ```shell SHOW DATABASES ``` , y
+se debe crear  una nueva base de datos llamada “GPS”.
+
+```shell
+>CREATE DATABASE GPS;
+```
+Ahora si vemos las bases de datos nuevamente ( SHOW DATABASES), veremos que
+nuestra base de datos “GPS” esta creada.
+
+– Ahora se debe seleccionar la base de datos para poder trabajar con ella:
+```shell
+ >USE GPS;
+```shell
+– Una vez seleccionada la base de datos a utilizar se podra realizar consultas a ella.
+– Ahora es necesario crear  una tabla que sera con la que se  trabajara :
+
+```shell
+>CREATE TABLE nombre de tabla ( nombre de primer columna INT, Nombre de segunda columna VARCHAR (70));
+```shell
+
+se puede observar que despues del nombre esta la palabra INT este corresponde al tipo de datos .. en este caso es de tipo entero 
+
+En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparentesis el tamaño ()
+un ejemplo es:
+
+```shell
+CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (70));
+```
+
+se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
+(string) de longitud 70, y un campo “Node” que es un numero de tipo entero.
+– para una consulta  a la tabla para obtener los registros existentes, como aun no añade
+ningún registro debería decir que esta vacía.
+
+```shell
+>SELECT * FROM gpŕmc
+```
+Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
+
+```shell
+>CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
+```
+
+para salir solo con CTRL C
+
+
+
+
+
+
+### CIDTE 
+PASANTE DE INGENIERIA EN COMUNICACIONES Y ELECTRONICA MARTIN ABRAHAM DE LARA MEDINA
+ASESOR DR. VIKTOR IVAN RODRIGUEZ ABDALA 
 ========================================
 
-Due to easier maintenance to keep in sync with original author lib, I've got 2 repo:    
 
-- My master one (this one) https://github.com/hallard/RadioHead that is the one you need if you want to use my projects or lib added features.
--  The one above has been forked to https://github.com/ch2i/RadioHead where I put the original version released by the author.
 
-Like this, I can do Pull Request from [ch2i][4] to [hallard][1] to add new features added by the author to my version. This mean that this [one][4] is just a github copy version of the latest original done by Mike, I don't do any change on this one. I know it's not the best way, but I didn't found a better solution for now, if you have better idea, just let me know.
 
-[1]: https://github.com/hallard/RadioHead 
-[2]: https://hallard.me
-[3]: http://www.airspayce.com/mikem/arduino/RadioHead/
-[4]: http://www.airspayce.com/mikem/arduino/RadioHead/RadioHead-1.67.zip
-[5]: https://github.com/ch2i/RadioHead 
-[6]: http://hallard.me/category/ulpnode/ 
-[7]: https://github.com/hallard/RadioHead/tree/master/examples/raspi
-[8]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/irq_test
-[9]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/spi_scan
-
-[10]: https://github.com/hallard/LoRasPI
-[11]: https://github.com/ch2i/iC880A-Raspberry-PI
-[12]: https://github.com/hallard/RPI-Lora-Gateway
 [13]: https://github.com/dragino/Lora
 
-[20]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/rf69
-[21]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/rf95
-[22]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/nrf24
-[23]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/multi_server
-[24]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/RasPiBoards.h
-[25]: https://github.com/hallard/RadioHead/tree/master/examples/raspi/rf95/rf95_client.cpp
+
 
 
