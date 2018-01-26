@@ -1,5 +1,6 @@
 Gateway IP para red LoRa con base de datos SQL
 ===========================================================
+
 Envio y recepcion de Gps apartir del puerto UART De la shield LoRa Dragino HAT/GPS,Despues de la recepcion de la informacion, se almacena en una base de datos Mysql de manera de respaldo de información
 
 =================================
@@ -14,6 +15,7 @@ Envio y recepcion de Gps apartir del puerto UART De la shield LoRa Dragino HAT/G
 
 ### Instalacion en Raspberry PI
 ================================
+
 En primer punto es diferente la instalacion para el server como para el client, sin embargo exiten algunos pasos iniciales que se deben realizar en las dos Raspberrys
 
 
@@ -28,7 +30,7 @@ https://github.com/cidte/samber.git
 
 
 
-##Server
+## Server
 ================================
 Clonar el repositorio
 ```shell
@@ -87,77 +89,6 @@ MariaDB> quit
 
 
 
-**INSTALACIÓN DE SERVIDOR HTTP APACHE**
-
-El servidor HTTP Apache se instala a través del gestor de paquetes de Linux.
-```shell
-$ sudo apt-get install apache2
-```
-
-Una vez finalizada la instalación, se puede corroborar la correcta instalación del servicio
-accediendo a través de un navegador a la dirección de localhost. La página por defecto de apache
-se muestra en la Figura 1.
-
-
-**INSTALANDO PHP**
-Al instalar PHP se deben agregar los conectores con apache y mysql.
-
-```shell
-$ sudo apt-get install php7.0 libapache2-mod-php7.0 php7.0-mysql
-```
-
-
-**INSTALANDO PHP MY ADMIN**
-phpMyAdmin permite manipular bases de datos de MySQL a través de una interfaz web de
-forma gráfica, utilizando herramientas php y apache.
-Con ayuda del gestor de paquetes de Linux se instala phpMyAdmin.
-
-```shell
-$ sudo apt-get install phpmyadmin
-```
-
-
-Durante la instalación, se elige usar Apache como servidor web.
-
-
-Adicionalmente preguntará si se desea instalar la base de datos dbconfig-common, a lo que
-se le indicará que No.
-
-
-un segmento de red o una dirección IP en específico.
-Para habilitar las peticiones remotas se debe de modificar el archivo etc con el siguiente comando 
-
-
-```shell
-$ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
-```
-
-El parámetro bi nd −ad d r ess = 127,0,0,1 delimita las direcciones IP donde se pueden realizar
-las conexiones entrantes, para permitir la conexión desde cualquier dirección IP este se cambia
-por 0,0,0,0.
-bind-address= 0.0.0.0
-
-Para que los cambios surtan efecto se debe de reiniciar el servicio de MySQL.
-```shell
-$ sudo systemctl restart mysql.service
-$ sudo systemctl restart mariadb.service
-```
-
-Para verificar que los cambios funcionaron se consulta si el puerto 3306 de MySQL está
-abierto.
-
-```shell
-$ sudo netstat -anp | grep 3306
-```
-
-Mostrando como resultado que el puerto de MySQL está en escucha
-
-
-```shell
-pi@raspserver:~ $ sudo netstat -anp | grep 3306
-tcp 0 0 0.0.0.0:3306 0.0.0.0:* LISTEN 529/mysqld
-```
-
 
 
 **CREAR BASE DE DATOS  DENTRO DE MYSQL**
@@ -181,15 +112,17 @@ Ahora si vemos las bases de datos nuevamente ( SHOW DATABASES), veremos que
 nuestra base de datos “GPS” esta creada.
 
 – Ahora se debe seleccionar la base de datos para poder trabajar con ella:
+
 ```shell
  >USE GPS;
-```shell
+```
+
 – Una vez seleccionada la base de datos a utilizar se podra realizar consultas a ella.
 – Ahora es necesario crear  una tabla que sera con la que se  trabajara :
 
 ```shell
 >CREATE TABLE nombre de tabla ( nombre de primer columna INT, Nombre de segunda columna VARCHAR (70));
-```shell
+```
 
 se puede observar que despues del nombre esta la palabra INT este corresponde al tipo de datos .. en este caso es de tipo entero 
 
@@ -206,7 +139,7 @@ se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es u
 ningún registro debería decir que esta vacía.
 
 ```shell
->SELECT * FROM gpŕmc
+>SELECT * FROM gprmc
 ```
 Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
 
@@ -221,9 +154,7 @@ para salir solo con CTRL C
 
 
 
-### CIDTE 
-PASANTE DE INGENIERIA EN COMUNICACIONES Y ELECTRONICA MARTIN ABRAHAM DE LARA MEDINA
-ASESOR DR. VIKTOR IVAN RODRIGUEZ ABDALA 
+ 
 ========================================
 
 
