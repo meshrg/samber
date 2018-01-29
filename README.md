@@ -28,10 +28,11 @@ $ sudo raspi-config
 seleccionar la opcion 5 
  - Interfacing Options
   - se debe Habilitar lo siguiente: 
+```shell
             SSH                
             VNC
             SPI 
-
+```
 
 Clonar el repositorio
 ```shell
@@ -43,7 +44,7 @@ https://github.com/cidte/samber.git
 1. Abrir la Terminal y Buscar la ubicaciones de la carpeta Samber
 2. seguir la siguiente ruta
 /Samber/Client o /Samber/Server
-3. escribir make
+3. Escribir  ```shell  make ```
 4. al hacer esto nos apareceran el ejecutable:ya depende que carpeta se eliga. El modo client(Modo de enviar informacion)
 y el Server(Modo de recepcion de Informacion)
 5. El codigo para el Envio de informacion es
@@ -58,8 +59,10 @@ sudo./rf95_server
 ## Cliente 
 ================================
 
+Una Ves habilitado SPI, VNC y SSH. Se prosigue a Realizar lo siguiente, escribir en la linea de comandos:
+
 ```shell
-- $ sudo nano /boot/config.txt
+ $ sudo nano /boot/config.txt
 ```
 Agregar las siguientes lineas al final 
 
@@ -72,11 +75,14 @@ force_turbo=1
 Para guardar cambios ctrl x
 
 ```shell
-sudo nano /lib/systemd/system/hciuart.service
+$ sudo nano /lib/systemd/system/hciuart.service
 ```
 
 Remplazar 
-```shell "After=dev-serial1.device" por 
+```shell "After=dev-serial1.device" 
+```
+por 
+```Shell 
 "After=dev-ttyS0.device"
 ```
 
@@ -125,7 +131,7 @@ Para mayor información [Aqui][1]
 **Base de datos**
 escribir en la linea de comandos 
 ```shell
-sudo apt-get install mysql-server
+$ sudo apt-get install mysql-server
 ```
 
 Dado que durante la instalación de MySQL se crea un root sin contraseña, es necesario
@@ -216,7 +222,7 @@ En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparent
 un ejemplo es:
 
 ```shell
-CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (70));
+>CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (70));
 ```
 
 se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
