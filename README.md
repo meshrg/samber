@@ -44,7 +44,10 @@ https://github.com/cidte/samber.git
 1. Abrir la Terminal y Buscar la ubicaciones de la carpeta Samber
 2. seguir la siguiente ruta
 /Samber/Client o /Samber/Server
-3. Escribir  ```shell  make ```
+3. Escribir  
+```shell  
+make 
+```
 4. al hacer esto nos apareceran el ejecutable:ya depende que carpeta se eliga. El modo client(Modo de enviar informacion)
 y el Server(Modo de recepcion de Informacion)
 5. El codigo para el Envio de informacion es
@@ -79,7 +82,9 @@ $ sudo nano /lib/systemd/system/hciuart.service
 ```
 
 Remplazar 
-```shell "After=dev-serial1.device" 
+
+```shell 
+"After=dev-serial1.device" 
 ```
 por 
 ```Shell 
@@ -239,6 +244,7 @@ Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las dem
 >CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
 ```
 
+Mayor informacion [Aqui][2]
 para salir solo con CTRL C
 
 
@@ -252,6 +258,7 @@ para salir solo con CTRL C
 
 
 [1]:http://wiki.dragino.com/index.php?title=Getting_GPS_to_work_on_Raspberry_Pi_3_Model_B
+[2]:https://profvanessaborjas.files.wordpress.com/2013/03/mysql_en_c_sec_undersecurity.pdf
 [13]: https://github.com/dragino/Lora
 
 
