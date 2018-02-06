@@ -244,12 +244,12 @@ Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las dem
 >CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
 ```
 
-Mayor informacion [Aqui][2]
+
 para salir solo con CTRL C
 
 
 
-
+Mayor informacion [Aqui][2]
 
 
  

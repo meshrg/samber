@@ -1,14 +1,4 @@
 // rf95_server.cpp
-//
-// Example program showing how to use RH_RF95 on Raspberry Pi
-// Uses the bcm2835 library to access the GPIO pins to drive the RFM95 module
-// Requires bcm2835 library to be already installed
-// http://www.airspayce.com/mikem/bcm2835/
-// Use the Makefile in this directory:
-// cd example/raspi/rf95
-// make
-// sudo ./rf95_server
-//
 // Contributed by Charles-Henri Hallard based on sample RH_NRF24 by Mike Poublon
 #include <stdlib.h>
 #include <string.h>
@@ -61,14 +51,6 @@ char Node [3];
 char GPS[73];
 
 char tabla[]= ""; 
-//{};
-char GPRMC[]="gprmc";
-char GPVTG[]="gpvtg";
-char GPTXT[]="gptxt";
-char GPGGA[]="gpgga";
-char GPGSA[]="gpgsa";
-char GPGSV[]="gpgsv";
-char GPGLL[]="gpgll";
 char buffer[73];
 int band;
 
@@ -208,7 +190,7 @@ int contador=0;
           led_blink = millis();
           digitalWrite(RF_LED_PIN, HIGH);
 #endif
-//while (rf95.available() ==1)
+
 
           // Should be a message for us now
           uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
@@ -230,12 +212,8 @@ int contador=0;
 char Node[3];
 int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
-//printf (" el nodo es el %d ",Node);
 
 
-// printf(" el buffer %s",buffer);
-
- //while (buffer[0]=='$') {
    if (buf[2] == 'P' )
     {       
 			if (buf[3] == 'R' && buf[4] == 'M' ) 
@@ -279,7 +257,7 @@ case 1:
  case 3:
 	strcpy(GPS,(char*)buf);
 	printf( "\n el valor de buf %s \n ",buf);
-	 strcpy(tabla,"gptx");
+	 strcpy(tabla,"gptxt");
      break;
  case 4:
 	 strcpy(GPS,(char*)buf);
@@ -342,19 +320,6 @@ fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
  
   return 0;
 }
-
-//void copeo(int GP)
-//{
- //for (int i=0;i<=GP;i++)
- //{
-	//char*buffer=(char*)buf;
-		//GPS[i]=buffer[i];
-				
-		
-			//} 
-
- 	
-//}
 
 
 void agrega(MYSQL* con,char*tabla, char* Node,char*GPS)

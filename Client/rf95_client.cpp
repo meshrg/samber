@@ -1,14 +1,4 @@
 // rf95_client.cpp
-//
-// Example program showing how to use RH_RF95 on Raspberry Pi
-// Uses the bcm2835 library to access the GPIO pins to drive the RFM95 module
-// Requires bcm2835 library to be already installed
-// http://www.airspayce.com/mikem/bcm2835/
-// Use the Makefile in this directory:
-// cd example/raspi/rf95
-// make
-// sudo ./rf95_client
-//
 // Contributed by Charles-Henri Hallard based on sample RH_NRF24 by Mike Poublon
 
 #include <bcm2835.h>
@@ -26,9 +16,7 @@
 #include <RH_RF69.h>
 #include <RH_RF95.h>
 
-// define hardware used change to fit your need
-// Uncomment the board you have, if not listed 
-// uncommment custom board and set wiring tin custom section
+
 
 // LoRasPi board 
 // see https://github.com/hallard/LoRasPI
@@ -76,27 +64,15 @@ int main (int argc, const char* argv[] )
   
   signal(SIGINT, sig_handler);
   printf( "%s\n", __BASEFILE__);
+ 
   
-		
-int contador=0;
-   int pkt=1; 
-   int Info=0;
-   char GPRMC[71]={};
-   char GPVT[37]={};
-   char GPTX[33]={};
-   char GPGG[74]={};
-   char GPGSA[57]={};
-   char GPGSV[67]={};
-   char GPGLL[49]={};
-   uint8_t PRM [71]={};		
-   uint8_t data[74]={};
-   uint8_t PVT [37]={};
-   uint8_t PTX[33]={};
-   uint8_t PGG[74]={};
-   uint8_t GSA[57]={};
-   uint8_t GSV[67]={};
-   uint8_t GLL[49]={};
+int bandera=0;
+int siz;		
+int contador=0; 
+char info[74]={};		
+uint8_t data[74]={};
 
+ 
 	  
   if (!bcm2835_init()) {
     fprintf( stderr, "%s bcm2835_init() Failed\n\n", __BASEFILE__ );
@@ -138,10 +114,7 @@ int contador=0;
     printf( "\nRF95 module seen OK!\r\n");
 
 #ifdef RF_IRQ_PIN
-    // Since we may check IRQ line with bcm_2835 Rising edge detection
-    // In case radio already have a packet, IRQ is high and will never
-    // go to low so never fire again 
-    // Except if we clear IRQ flags and discard one if any by checking
+
     rf95.available();
 
     // Now we can enable Rising edge detection
@@ -203,14 +176,9 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 	  GPS[i]=serialGetchar (fd);
 }
    char * GPRM;
-  printf ("Los valores del gps son  \" %s \"...\n",GPS);
+	   GPRM=strchr(GPS,'$');
+   int i=GPRM-GPS;
 
-printf (" \n");
-	
-   GPRM=strchr(GPS,'G');
-
-     
-      //memset(&GPVT,' ',sizeof(GPVT));
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
        //Send every 5 seconds
@@ -221,376 +189,62 @@ printf (" \n");
         led_blink = millis();
         digitalWrite(RF_LED_PIN, HIGH);
 #endif
-//
-
-
 	  
-    int i=GPRM-GPS;
+int i=GPRM-GPS;	
+char *GPR;
+const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  
 
-    GPRM=strchr(GPRM+1,'G');
-    
-   if (GPS[i+1] == 'P' )
-    {       
-      if (GPS[i+2] == 'R' && GPS[i+3] == 'M' ) 
-		{							
-									int j;
-									int k;
-									for (k=i-1,j=0;(k<i+71);k++,j++)
-									{ 
-									GPRMC[j]=GPS[k];
-									uint8_t *mc = (uint8_t *)GPRMC;
-									PRM[j] = mc[j];
-									}
-	   
-	    } 
-	      else if (GPS[i+2] == 'V' && GPS[i+3] == 'T' )
-	       { 
-		
-         int qq;
-         int w;
-         for (w=i-1,qq=0;(w<i+37);w++,qq++)
-	     { 
-		GPVT[qq]=GPS[w];
-		 uint8_t *vt = (uint8_t *)GPVT;
-		PVT[qq] = vt[qq];
-		 }
-		   }
-		else if (GPS[i+2] == 'T' && GPS[i+3] == 'X' )
-	     {  
-           int e;
-           int r;
-           for (r=i-1,e=0;(r<i+32);r++,e++)
-	       { 
-		 GPTX[e]=GPS[r];
-		uint8_t *tx = (uint8_t *)GPTX;
-		PTX[e] = tx[e];
-		   
-		   }	
-	     }
-     
-	if (GPS[i+2] == 'G') 
-		{
-			if (GPS[i+3] == 'G' && GPS[i+4] == 'A' )
-		   { 
-             int t;
-             int y;
-             for (y=i-1,t=0;(y<i+72);y++,t++)
-	         { 
-		     GPGG[t]=GPS[y];
-		    uint8_t *gg = (uint8_t *)GPGG;
-		   PGG[t] = gg[t];
-		   
-		   }
- 
-			}
-		else if (GPS[i+3] == 'S' && GPS[i+4] == 'A' ) {
-			
-             int u;
-             int o;
-             for (o=i-1,u=0;(o<i+57);o++,u++)
-	         { 
-				GPGSA[u]=GPS[o];
-		     uint8_t *sa = (uint8_t *)GPGSA;
-		     GSA[u] = sa[u];
-		     }
 
-			}
-		else if (GPS[i+3] == 'S'  && GPS[i+4] == 'V' ) {
-			
-             int p;
-             int s;
-             for (s=i-1,p=0;(s<i+67);s++,p++)
-	         { 
-		  GPGSV[p]=GPS[s];
-		    uint8_t *sv = (uint8_t *)GPGSV;
-		      GSV[p] = sv[p];
-		     }
 
-			}
-         else if (GPS[i+3] == 'L' && GPS[i+4] == 'L' ) {
-			
-             int d;
-             int f;
-             for (f=i-1,d=0;(f<i+49);f++,d++)
-	         { 
-		      GPGLL[d]=GPS[f];
-		      uint8_t *ll = (uint8_t *)GPGLL;
-		      GLL[d] = ll[d];
-		    // GLL[d] = GPS[f];
-		    // printf("%c",GLL);
-		    //  return GLL;
-		     }
-		    
-			printf (" \n"); 
-	        // printf ("%s \n",GPGLL); 
-		//	printf("se encontro GGL  \n"); 
-			}
-	    }
- //printf ("%s \n",data);
-  }
-
-  switch( pkt )   
-{  
-    case 1:
-   if (PRM[0] != 0)
-    { 
-		
-		Info=1;
-
-      
-		   //char * gp;
-            //gp=strchr(GPRMC,'*');
-		    //int gr = gp-GPRMC;
-		 ////   printf(" el *  es = %d \n ",gav);
-			//gp=strchr(gp+1,'*');
-		 	//int gpr=gr+2; 
-	 
-      
-        //strcpy(data,PRM); 
-       // for (int z=0;(z<=gpr);z++)
-        for (int z=0;(z<=71);z++)
-	      { 
-		data[z] = PRM[z];
-		  }
-     //   printf (" valor de  data PRM %s  \n",data);
-    
- }
-        pkt++; 
-      //   printf (" valor de pkt %d  \n",pkt); 
-        	printf (" \n");	printf (" \n");
-        break;
-          
-    case 2 : 
-    if (PVT[0] == '$')
+ GPR = strstr(GPS,ABR[bandera]);
+   if (!strncmp( GPR, "$GPRMC", 5 ))
     {
-		Info=1;
-		printf (" \n");
-		printf (" \n");
-        printf (" \n");
-     //   printf(" Case Num 2");
-         //data[31]
-		// memset(&data[0], 0, sizeof(data));
-	//	printf (" valor de PVT %s  \n",GPVT);
-		 //Indicador
-            char * gvt;
-            gvt=strchr(GPVT,'*');
-		    int gav = gvt-GPVT;
-		 //   printf(" el *  es = %d \n ",gav);
-			gvt=strchr(gvt+1,'*');
-		 	int gpv=gav+2; 
-	 
-		  
-		 // strcpy(data,PVT); 
-    for (int ol=0;(ol<=gpv);ol++)
-       
-       //for (int ol=0;(ol<=36);ol++)
-	       { 
-		   
-		    data[ol]= PVT[ol];
-		  //   printf (" valor de dat %s  \n",data);
-     }
-       
-       
-       
-        	//printf (" \n");	printf (" \n");  
-      
-   } 
-        pkt++;  
-      //   printf (" valor de pkt %d  \n",pkt);
-       	printf (" \n");	printf (" \n");
-        break; 
-         
-    case 3 :  
-    if (PTX[0] == '$')
-    {
-		Info=1;
-
-		printf (" \n");
-		  printf (" \n");
-       
-   //  printf(" Case Num 3");
-    //  printf (" valor de PTX %s  \n",PTX);
-      //Indicador
-            //char * Gx;
-            //Gx=strchr(GPTX,'*');
-		     //int gax = Gx-GPTX;
-		 //printf(" el *  es = %d \n ",gax);
-			//Gx=strchr(Gx+1,'*');
-		 	 
-		//int GTx=gax+2; 
-	 ////	 
-     //for (int f=0;(f<=GTx);f++)
-	 for (int f=0;(f<=32);f++)
-	       { 
-		   
-		    data[f]= PTX[f];
-     }
- 
-    // printf (" valor de data %s  \n",data); 
- }
-        pkt++; 
-      //  printf (" valor de pkt %d  \n",pkt); 
-      	printf (" \n");	printf (" \n");
-        break; 
-     case 4 : 
-    if (PGG[0] =='$')
-    {
-		
-		Info=1;
-		  printf (" \n");
-         printf (" \n");
-         	printf (" \n");
-    // printf(" Case Num 4");
-
-	//	 printf (" valor de PGG %s  \n",GPGG);
-	            
-	            //char * Gg;
-            //Gg=strchr(GPGG,'*');
-		     //int ga = Gg-GPGG;
-		 //printf(" el *  es = %d \n ",ga);
-			//Gg=strchr(Gg+1,'*');
-		 	 
-		//int idg=ga+2; 	 
-		 
-   // for (int g=0;(g<=idg);g++)
-    	 
-    for (int g=0;(g<=74);g++)
-	         { 
-		   data[g]=PGG[g];
-		  // printf (" valor de data %s  \n",data); 
-	           }
-		   //printf (" valor de data %c  \n",data); 
-	   }
-        pkt++; 
-      //printf (" valor de pkt %d  \n",pkt);    
-        	printf (" \n");	printf (" \n");printf (" \n");	printf (" \n");
-        break;
-        case 5 : 
-         if (GSA[0] =='$')
-    {  
-		//  memset(&GPGG,' ', sizeof(GPGG));
-		Info=1; 
-		  printf (" \n");
-         printf (" \n");   
- //    printf(" Case Num 5");
-	   
-		// printf (" valor de GSA %s  \n",GSA);
-	 char * Gss;
-            Gss=strchr(GPGSA,'*');
-		     int gsaa = Gss-GPGSA;
-//		 printf(" el *  es = %d \n ",gsaa);
-			Gss=strchr(Gss,'*');
-		 	 
-		int is=gsaa+2;	 
-		 
-    for (int hh=0;(hh<=is);hh++)
- //for (int hh=0;(hh<=57);hh++)
-	         { 
-		     data[hh]=GSA[hh]; 
-		     } 
-		        Info=1;
-		        	printf (" \n");
-		   printf ("  GSA %s  \n",data);   
-	   }
-        pkt++;
-       //  printf (" valor de pkt %d  \n",pkt);
-         	printf (" \n");	printf (" \n"); printf (" \n");	printf (" \n"); 
-        break;
-    
-         case 6:  
-     if (GSV[0] =='$')
-    {  
-		
-		Info=1;  
-		  printf (" \n");
-         printf (" \n");      
-   //  printf(" Case Num 6");
-
-		//data[66];
-      //memset(&data[0], 0, sizeof(data));	
-		 //	 printf (" valor de GSV %s  \n",GSV);
-		 	
-		  char * Gs;
-          Gs=strchr(GPGSV,'*');
-		  int gv = Gs-GPGSV;
-	//	  printf(" el *  es = %d \n ",gv);
-			Gs=strchr(Gs+1,'*');
-		int ind=gv+2; 
-			 
-     for (int j=0;(j<=ind);j++)
-      //for (int j=0;(j<=67);j++)
-	         { 
-		      data[j]=GSV[j]; 
-		     }
-		        //Info=1;
-		        	
-	//	     printf (" valor de data gsv %s  \n",data);
-			 }
-        pkt++;  
-       //  printf (" valor de pkt %d  \n",pkt);
-         	printf (" \n");	printf (" \n");printf (" \n");	printf (" \n");
-         	
-        break;
-        
-       case 7:
-        if (GLL[0] != 0)
-    {
-		 Info=1;
-		 printf (" \n");
-         printf (" \n");
-     //    printf(" Case Num 7");
-	//	 printf (" valor de GLL %s  \n",GLL);
-   	
-		  //char * gll;
-          //gll=strchr(GPGLL,'*');
-		  //int gl = gll-GPGLL;
-		  //printf(" el *  es = %d \n ",gl);
-		  //gll=strchr(gll+1,'*');
-		 	 
-		  //int lg=gl+2; 
-   
-   //for (int k=0;(k<=lg);k++)
-   for (int k=0;(k<=49);k++)
-	         {
-		     data[k]=GLL[k];
-		 } 
- // printf (" valor de dat %s  \n",data); 
-	} 
+      siz=71;
+    }
+    else if (!strncmp( GPR, "$GPVTG", 5 ))
+     {
+		siz=38;
+	}
+	else if (!strncmp( GPR, "$GPTXT", 5 ))
+     {
+		siz=33;
+	}
+	else if (!strncmp( GPR, "$GPGGA", 5 ))
+     {
+		siz=73;
+	}
+	else if (!strncmp( GPR, "$GPGSA", 6 ))
+     {
+		siz=57;
+	}
+	else if (!strncmp( GPR, "$GPGSV", 6 ))
+     {
+		siz=68;
+	}
+	else if (!strncmp( GPR, "$GPGLL", 5 ))
+     {
+		siz=49;
+	}
 	
-        pkt=1; 
-        // printf (" valor de pkt se supone que es 1 pkt=1 %d  \n",pkt); 
-        	printf (" \n");	printf (" \n"); printf (" \n");	printf (" \n");
-        break;    
-         
-}
-//if (contador==9) { 
-//uint8_t fd;
-//if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
-  //{
-    //fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
-   //// return 1 ;
-  //}
- 
-//char GPS [700]={} ;
-  //for (int i=0;i<700;i++)
-  //{
-	  //GPS[i]=serialGetchar (fd);
-//}
-   //char * GPRM;
-   //printf ("Los valores del gps son  \" %s \"...\n",GPS);
-//printf(" **************************");
-////printf(" **************************");
-//printf (" \n");
+	 strncpy (info, GPR,siz);     
+						
+	 
+				     char * Gs;
+					Gs=strchr(info,'*');
+					int gv = Gs-info;
+					int ind= gv+3; 
+				strncpy ((char *)data, info, ind);
+				
+		if (bandera==6){
+			bandera=0;
+		}
+		else {
+			bandera++;
+		}
 
-//}
-
-
-//printf (" valor de dat %d  \n",pkt);  
- //printf (" \n");
  if (data[0]=='$')
  {
-   if (Info==1)
-      {
+
   uint8_t len = sizeof(data);
   printf("Enviando %02d bytes to node #%d => ", len, RF_GATEWAY_ID );
   printf (" \n");printf (" \n");printf (" \n");
@@ -598,71 +252,20 @@ printf (" \n");
   contador= contador+1;
   printf("el contado va en %d ",contador);
         printbuffer(data, len);
-        printf (" se envio %s  \n",data);
+        //printf (" se envio %s  \n",data);
         printf("\n" );
       rf95.send(data, len);
        rf95.waitPacketSent();
-        //strcpy(data,"");
        printf("estoy esperando");
        usleep(2000000);
        memset(&data,' ', sizeof(data));     
-  //   memset(&data,' ', sizeof(data));
-      //memset(&GPGSV,' ', sizeof(GPGSV));
-       //memset(&GPTX,' ', sizeof(GPTX));
-      //memset(&GPRMC,' ', sizeof(GPRMC));
-      //memset(&GPGG,' ', sizeof(GPGG));
-      //memset(&GPGLL,' ', sizeof(GPGLL)); 
-     //memset(&GPGSV,' ', sizeof(GPGSV));
-      memset(&PRM,' ', sizeof(PRM));
-      memset(&PVT,' ', sizeof(PVT));
-      memset(&PTX,' ', sizeof(PTX));
-      memset(&PGG,' ', sizeof(PGG)); 
-     memset(&GSV,' ', sizeof(GSV));
-     memset(&GSA,' ', sizeof(GSA));
-     memset(&GLL,' ', sizeof(GLL));
-      
-		
-    }
-		
-      
+       memset(&info,' ', sizeof(info));
  }
-//}
+
 break;
-}
-}
-      // printf ("****%s",data);
-  //uint8_t data[] = "Hola Mundo";
- 
-
+     }
+   }
        }
-       
-	
-	//
-        // Send a message to rf95_server
-        //GPS();
-        //printf(" %s",RMC);
-        
-/*
-        // Now wait for a reply
-        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-        uint8_t len = sizeof(buf);
-
-        if (rf95.waitAvailableTimeout(1000)) { 
-          // Should be a reply message for us now   
-          if (rf95.recv(buf, &len)) {
-            printf("got reply: ");
-            printbuffer(buf,len);
-            printf("\nRSSI: %d\n", rf95.lastRssi());
-          } else {
-            printf("recv failed");
-          }
-        } else {
-          printf("No reply, is rf95_server running?\n");
-        }
-*/
-        
-     // }
-
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
       if (led_blink && millis()-led_blink>200) {
