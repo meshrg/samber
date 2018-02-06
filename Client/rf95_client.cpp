@@ -49,7 +49,7 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
-
+//void lectura_GPS ();
 void sig_handler(int sig)
 {
   printf("\n%s Break received, exiting!\n", __BASEFILE__);
@@ -65,7 +65,7 @@ int main (int argc, const char* argv[] )
   signal(SIGINT, sig_handler);
   printf( "%s\n", __BASEFILE__);
  
-  
+ int alto=10; 
 int bandera=0;
 int siz;		
 int contador=0; 
@@ -151,11 +151,11 @@ uint8_t data[74]={};
     rf95.setHeaderTo(RF_GATEWAY_ID);  
   //GPS();
     printf("RF95 node #%d init OK @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
-
+ int l=1;
     last_millis = millis();
    while (!force_exit) {
 	       
-    int l=1;
+   
 while (l=1)
 {  
 
@@ -169,15 +169,16 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
    // return 1 ;
   }
 
-  
+ //uint8_t fd  
  char GPS [700]={} ;
- for (int i=0;i<700;i++)
+ for (int j=0;j<700;j++)
   {
-	  GPS[i]=serialGetchar (fd);
+	  GPS[j]=serialGetchar (fd);
 }
+  //lectura_GPS ();
    char * GPRM;
 	   GPRM=strchr(GPS,'$');
-   int i=GPRM-GPS;
+	 serialClose(fd);
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
@@ -241,27 +242,30 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 		else {
 			bandera++;
 		}
+		if (contador==alto) {
+return EXIT_SUCCESS;
+ }
+
 
  if (data[0]=='$')
  {
 
   uint8_t len = sizeof(data);
-  printf("Enviando %02d bytes to node #%d => ", len, RF_GATEWAY_ID );
-  printf (" \n");printf (" \n");printf (" \n");
-  
-  contador= contador+1;
-  printf("el contado va en %d ",contador);
-        printbuffer(data, len);
+  printf("Enviando [%d] al node #%d => ",contador,RF_GATEWAY_ID );
+	   contador= contador+1;
+       printbuffer(data, len);
+         printf (" \n");printf (" \n");printf (" \n");
         //printf (" se envio %s  \n",data);
         printf("\n" );
-      rf95.send(data, len);
+       rf95.send(data, len);
        rf95.waitPacketSent();
-       printf("estoy esperando");
-       usleep(2000000);
+       //printf("estoy esperando");
+       printf (" \n");printf (" \n");
+       usleep(200000);//0
        memset(&data,' ', sizeof(data));     
        memset(&info,' ', sizeof(info));
  }
-
+ 
 break;
      }
    }
@@ -288,3 +292,14 @@ break;
   bcm2835_close();
   return 0;
 }
+
+
+ //void lectura_GPS (){
+ //uint8_t fd; 
+ //char GPS [1000]={} ;
+ //for (int j=0;j<1000;j++)
+  //{
+	  //GPS[j]=serialGetchar (fd);
+//}
+
+//}

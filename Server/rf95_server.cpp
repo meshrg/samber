@@ -206,10 +206,8 @@ int contador=0;
      
           if (rf95.recv(buf, &len)) {
 
-            printf("Packet[%02d] #%d => #%d %ddB: ", len, from, to, rssi);
+            printf("Packet[%02d] [%d] #%d => #%d %ddB: ",contador, len, from, to, rssi);
             contador = contador+1;
-            printf ("el contador lleva %d",contador);
-            //printbuffer(buf, len);  
 
 char Node[3];
 int Nod = from ;
