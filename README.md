@@ -59,6 +59,7 @@ Sudo./rf95_client
 ```shell
 sudo./rf95_server
 ```
+<img src="https://raw.githubusercontent.com/cidte/samber/master/pictures/Server_funcionando.png" alt="RF95 client">
 
 ## Cliente 
 ================================
