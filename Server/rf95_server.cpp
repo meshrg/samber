@@ -53,6 +53,7 @@ char GPS[73];
 char tabla[]= ""; 
 char buffer[73];
 int band;
+int bandera=0;
 
 // Create an instance of a driver
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
@@ -80,6 +81,7 @@ MYSQL_ROW row;
 MYSQL_RES *res;
 char consulta0 [1024];
 int contador=0;
+
   unsigned long led_blink = 0;
   
   signal(SIGINT, sig_handler);
@@ -214,77 +216,62 @@ int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
 
 
-   if (buf[2] == 'P' )
+    if (buf[2] == 'P' )
     {       
-			if (buf[3] == 'R' && buf[4] == 'M' ) 
-			{  band=1; 
-				}
-				
-	        else if (buf[3] == 'V' && buf[4] == 'T')
-					{  band=2;
-						}
-			else if (buf[3] == 'T' && buf[4] == 'X' )
+				if ( buf[3] == 'R' && buf[4] == 'M' ) 
+				{
+				strcpy(GPS,(char*)buf);	
+				printf( "\n el valor de buf %s \n ",buf);
+				strcpy(tabla,"gprmc");
+					}
+	              else if ( buf[3] == 'V' && buf[4] == 'T')
 					{  
-				band=3;	}
-		if (buf[3] == 'G') 
-					{
-					if (buf[4] == 'G' && buf[5] == 'A' )
-						{ 
-							band=4;	}
-					else if (buf[4] == 'S' && buf[5] == 'A' ) {
-						band=5;		}		
-					else if (buf[4] == 'S'  && buf[5] == 'V' ) { 
-						band=6; }
-					else if (buf[4] == 'L' && buf[5] == 'L' ) {
-						band=7;}	
-					} 
-	}
+					strcpy(GPS,(char*)buf);
+					printf( "\n el valor de buf %s \n ",buf);
+					strcpy(tabla,"gpvtg");
+						}
+			          else if (buf[3] == 'T' && buf[4] == 'X' )
+					     {  	
+						strcpy(GPS,(char*)buf);
+						printf( "\n el valor de buf %s \n ",buf);
+						strcpy(tabla,"gpvtg");
+				          }
+	if (buf[3] == 'G') 
+	   {
+		if (buf[4] == 'G' && buf[5] == 'A' )
+						{ 		
+			  strcpy(GPS,(char*)buf);
+			  printf( " el valor de buf %s",buf);
+			  strcpy(tabla,"gpgga");
+							}
+					else if (buf[4] == 'S' && buf[5] == 'A' ) 
+									{
+					  strcpy(GPS,(char*)buf);
+					  printf( " el valor de buf %s",buf);
+					  strcpy(tabla,"gpgsa");
+										}		
+					   else if (buf[4] == 'S'  && buf[5] == 'V' ) { 
+						    strcpy(GPS,(char*)buf);
+						    printf( " el valor de buf %s",buf);
+						    strcpy(tabla,"gpgsv");
+											}
+							else if (buf[4] == 'L' && buf[5] == 'L' ) {
+							strcpy(GPS,(char*)buf);
+							printf( " el valor de buf %s",buf);
+							strcpy(tabla,"gpgll");
+													} 
+		}   
+    
+   }
+ agrega(con,tabla,Node,GPS);   
+  
+  if (bandera==6){
+			bandera=0;
+		}
+		else {
+			bandera++;
+		}  
  
-switch (band)
-{ 
-case 1:
-		strcpy(GPS,(char*)buf);	
-		printf( "\n el valor de buf %s \n ",buf);
-	    strcpy(tabla,"gprmc");
-     break;
-     
- case 2:
-	strcpy(GPS,(char*)buf);
-	printf( "\n el valor de buf %s \n ",buf);
-     strcpy(tabla,"gpvtg");
-     break;
-     
- case 3:
-	strcpy(GPS,(char*)buf);
-	printf( "\n el valor de buf %s \n ",buf);
-	 strcpy(tabla,"gptxt");
-     break;
- case 4:
-	 strcpy(GPS,(char*)buf);
-	  printf( " el valor de buf %s",buf);
-	  strcpy(tabla,"gpgga");
-     break;
-     
-case 5:
-		strcpy(GPS,(char*)buf);
-		printf( "\n el valor de buf %s \n ",buf);
-		strcpy(tabla,"gpgsa");
-     break;
-     
- case 6:
-	strcpy(GPS,(char*)buf);
-	printf( "\n el valor de buf %s \n ",buf);
-	strcpy(tabla,"gpgsv");
-     break;
-     
-case 7:			
-	strcpy(GPS,(char*)buf);
-	printf( "\n el valor de buf %s \n ",buf);
-	strcpy(tabla,"gpgll");
-     break;
-}
- agrega(con,tabla,Node,GPS);
-
  }       
            else {
             Serial.print("receive failed");

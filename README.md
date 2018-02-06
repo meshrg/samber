@@ -54,6 +54,7 @@ y el Server(Modo de recepcion de Informacion)
 ```shell
 Sudo./rf95_client
 ```
+<img src="https://raw.githubusercontent.com/cidte/samber/master/pictures/Client_funcionando.png" alt="RF95 client">
 6. la otra opcion es utilizar el Lora Dragino en modo de recepcion es
 ```shell
 sudo./rf95_server
