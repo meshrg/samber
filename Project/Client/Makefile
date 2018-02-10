@@ -1,15 +1,15 @@
 # Makefile
-# Sample for RH_RF95 (client and server) on Raspberry Pi
-# Caution: requires bcm2835 library to be already installed
-# http://www.airspayce.com/mikem/bcm2835/
+# Ejemplo  Cliente en Raspberry Pi
+# Precaucion: Debe seguir los pasos que se indicaron a pie de la letra
+# https://github.com/cidte/samber
 
 CC            = g++
-CFLAGS        = -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY -D__BASEFILE__=\"$*\" `mysql_config --cflags` 
-LIBS          = -lbcm2835 `mysql_config --libs `
-RADIOHEADBASE = ../
+CFLAGS        = -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY -D__BASEFILE__=\"$*\"
+LIBS          = -lbcm2835 -lwiringPi
+RADIOHEADBASE = ../../
 INCLUDE       = -I$(RADIOHEADBASE)
 
-all: rf95_client rf95_server
+all: rf95_client 
 
 RasPi.o: $(RADIOHEADBASE)/RHutil/RasPi.cpp
 				$(CC) $(CFLAGS) -c $(RADIOHEADBASE)/RHutil/RasPi.cpp $(INCLUDE)
@@ -17,8 +17,6 @@ RasPi.o: $(RADIOHEADBASE)/RHutil/RasPi.cpp
 rf95_client.o: rf95_client.cpp
 				$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
-rf95_server.o: rf95_server.cpp
-				$(CC) $(CFLAGS) -c $(INCLUDE) $<
 
 RH_RF95.o: $(RADIOHEADBASE)/RH_RF95.cpp
 				$(CC) $(CFLAGS) -c $(INCLUDE) $<
@@ -41,8 +39,6 @@ RHGenericSPI.o: $(RADIOHEADBASE)/RHGenericSPI.cpp
 rf95_client: rf95_client.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o
 				$(CC) $^ $(LIBS) -o rf95_client
 
-rf95_server: rf95_server.o RH_RF95.o RasPi.o RHHardwareSPI.o RHGenericDriver.o RHGenericSPI.o RHSPIDriver.o
-				$(CC) $^ $(LIBS) -o rf95_server
 
 clean:
-				rm -rf *.o rf95_client rf95_server
+				rm -rf *.o rf95_client 

@@ -208,59 +208,94 @@ int contador=0;
 
             printf("Packet[%02d] [%d] #%d => #%d %ddB: ",contador, len, from, to, rssi);
             contador = contador+1;
-
+char buffer[6]={};
 char Node[3];
 int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
 
+char *GPR;
+strncpy (buffer, (char*)buf,5);
+printf("Los primeros 5 valores son %s",buffer);
 
-    if (buf[2] == 'P' )
-    {       
-				if ( buf[3] == 'R' && buf[4] == 'M' ) 
-				{
-				strcpy(GPS,(char*)buf);	
-				printf( "\n el valor de buf %s \n ",buf);
+GPR = strstr((char*)buf,buffer);
+   if (!strncmp( GPR, "$GPRMC", 5 ))
+    {
+      strcpy(GPS,(char*)buf);	
+				printf( "%s",buf);
 				strcpy(tabla,"gprmc");
-					}
-	              else if ( buf[3] == 'V' && buf[4] == 'T')
-					{  
-					strcpy(GPS,(char*)buf);
-					printf( "\n el valor de buf %s \n ",buf);
-					strcpy(tabla,"gpvtg");
-						}
-			          else if (buf[3] == 'T' && buf[4] == 'X' )
-					     {  	
-						strcpy(GPS,(char*)buf);
-						printf( "\n el valor de buf %s \n ",buf);
-						strcpy(tabla,"gpvtg");
-				          }
-	if (buf[3] == 'G') 
-	   {
-		if (buf[4] == 'G' && buf[5] == 'A' )
-						{ 		
-			  strcpy(GPS,(char*)buf);
-			  printf( " el valor de buf %s",buf);
-			  strcpy(tabla,"gpgga");
-							}
-					else if (buf[4] == 'S' && buf[5] == 'A' ) 
-									{
-					  strcpy(GPS,(char*)buf);
-					  printf( " el valor de buf %s",buf);
-					  strcpy(tabla,"gpgsa");
-										}		
-					   else if (buf[4] == 'S'  && buf[5] == 'V' ) { 
-						    strcpy(GPS,(char*)buf);
-						    printf( " el valor de buf %s",buf);
-						    strcpy(tabla,"gpgsv");
-											}
-							else if (buf[4] == 'L' && buf[5] == 'L' ) {
-							strcpy(GPS,(char*)buf);
-							printf( " el valor de buf %s",buf);
-							strcpy(tabla,"gpgll");
-													} 
-		}   
+      
+    }
+    else if (!strncmp( GPR, "$GPVTG", 5 ))
     
-   }
+     {
+		  strcpy(GPS,(char*)buf);	
+					printf( "%s",buf);
+					strcpy(tabla,"gpvtg");
+	}
+	else if (!strncmp( GPR, "$GPTXT", 5 ))
+     {
+		strcpy(GPS,(char*)buf);
+						  printf( "%s",buf);
+						strcpy(tabla,"gptxt");
+	}
+	else if (!strncmp( GPR, "$GPGGA", 5 ))
+     {
+		strcpy(GPS,(char*)buf);
+			  printf( "%s",buf);
+			  strcpy(tabla,"gpgga");
+	}
+	else if (!strncmp( GPR, "$GPGSA", 6 ))
+     {
+						
+					  strcpy(GPS,(char*)buf);
+					  	  printf( "%s",buf);
+					  strcpy(tabla,"gpgsa");
+										
+					   
+						 
+							
+	}
+	else if (!strncmp( GPR, "$GPGSV", 6 ))
+     {
+
+							strcpy(GPS,(char*)buf);
+						   	  printf( "%s",buf);
+						    strcpy(tabla,"gpgsv");
+	}
+	else if (!strncmp( GPR, "$GPGLL", 5 ))
+     {
+	strcpy(GPS,(char*)buf);
+								  printf( "%s",buf);
+							strcpy(tabla,"gpgll");
+	}
+
+
+    //if (buf[2] == 'P' )
+    //{       
+				//if ( buf[3] == 'R' && buf[4] == 'M' ) 
+				//{
+				
+					//}
+	              //else if ( buf[3] == 'V' && buf[4] == 'T')
+					//{  
+					  
+						//}
+			          //else if (buf[3] == 'T' && buf[4] == 'X' )
+					     //{  	
+						
+				          //}
+	//if (buf[3] == 'G') 
+	   //{
+		//if (buf[4] == 'G' && buf[5] == 'A' )
+						//{ 		
+			  
+							//}
+					//else if (buf[4] == 'S' && buf[5] == 'A' ) 
+					
+													//} 
+		//}   
+    
+   //}
  agrega(con,tabla,Node,GPS);   
   
   if (bandera==6){

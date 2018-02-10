@@ -1,15 +1,9 @@
 // rf95_server.cpp
-//
-// Example program showing how to use RH_RF95 on Raspberry Pi
-// Uses the bcm2835 library to access the GPIO pins to drive the RFM95 module
-// Requires bcm2835 library to be already installed
-// http://www.airspayce.com/mikem/bcm2835/
-// Use the Makefile in this directory:
-// cd example/raspi/rf95
-// make
-// sudo ./rf95_server
-//
 // Contributed by Charles-Henri Hallard based on sample RH_NRF24 by Mike Poublon
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <mysql/mysql.h>
 
 #include <bcm2835.h>
 #include <stdio.h>
@@ -47,10 +41,27 @@
 #define RF_FREQUENCY  915.00
 #define RF_NODE_ID    1
 
+//MYSQL
+#define HOST "localhost"
+#define USER "Samber" 
+#define PASS "cidte"
+#define DB "GPS"
+// Variables 
+char Node [3];
+char GPS[73];
+
+char tabla[]= ""; 
+char buffer[73];
+int band;
+int bandera=0;
+
 // Create an instance of a driver
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 //RH_RF95 rf95(RF_CS_PIN);
 
+// funciones
+//void muestra(MYSQL* con,char* consulta0,MYSQL_ROW row,MYSQL_RES *res);
+void agrega (MYSQL* con, char *tabla, char* Node,char*GPS);
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
 
@@ -63,6 +74,13 @@ void sig_handler(int sig)
 //Main Function
 int main (int argc, const char* argv[] )
 {
+	//MYSQL
+MYSQL *con;
+MYSQL_ROW row;
+MYSQL_RES *res;
+char consulta0 [1024];
+int contador=0;
+
   unsigned long led_blink = 0;
   
   signal(SIGINT, sig_handler);
@@ -147,8 +165,15 @@ int main (int argc, const char* argv[] )
     printf( "Listening packet...\n" );
 
     //Begin the main body of code
+    con=mysql_init(NULL);	
+    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				{	
+	fprintf(stderr, "%s\n", mysql_error(con));
+	 exit(1);
+				}	
     while (!force_exit) {
-      
+  //int dos=1;
+ 
 #ifdef RF_IRQ_PIN
       // We have a IRQ pin ,pool it instead reading
       // Modules IRQ registers from SPI in each loop
@@ -159,12 +184,15 @@ int main (int argc, const char* argv[] )
         bcm2835_gpio_set_eds(RF_IRQ_PIN);
         //printf("Packet Received, Rising event detect for pin GPIO%d\n", RF_IRQ_PIN);
 #endif
-
+ //while (dos<10)
+  //{
         if (rf95.available()) { 
 #ifdef RF_LED_PIN
           led_blink = millis();
           digitalWrite(RF_LED_PIN, HIGH);
 #endif
+
+
           // Should be a message for us now
           uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
           uint8_t len  = sizeof(buf);
@@ -173,11 +201,82 @@ int main (int argc, const char* argv[] )
           uint8_t id   = rf95.headerId();
           uint8_t flags= rf95.headerFlags();;
           int8_t rssi  = rf95.lastRssi();
-          
+   
+     
           if (rf95.recv(buf, &len)) {
-            printf("Packet[%02d] #%d => #%d %ddB: ", len, from, to, rssi);
-            printbuffer(buf, len);
-          } else {
+
+            printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
+            contador = contador+1;
+            
+char buffer[6]={};
+char Node[3];
+int Nod = from ;
+snprintf(Node, 3, "%d", Nod);
+
+char *GPR;
+strncpy (buffer, (char*)buf,6);
+
+
+GPR = strstr((char*)buf,buffer);
+   if (!strncmp( GPR, "$GPRMC", 5 ))
+    {
+				strcpy(GPS,(char*)buf);	
+				printf( "%s",buf);
+				strcpy(tabla,"gprmc");
+      
+    }
+    else if (!strncmp( GPR, "$GPVTG", 5 ))
+    
+     {
+					strcpy(GPS,(char*)buf);	
+					printf( "%s",buf);
+					strcpy(tabla,"gpvtg");
+	}
+	else if (!strncmp( GPR, "$GPTXT", 5 ))
+     {
+		strcpy(GPS,(char*)buf);
+						  printf( "%s",buf);
+						strcpy(tabla,"gptxt");
+	}
+	else if (!strncmp( GPR, "$GPGGA", 5 ))
+     {
+		strcpy(GPS,(char*)buf);
+			  printf( "%s",buf);
+			  strcpy(tabla,"gpgga");
+	}
+	else if (!strncmp( GPR, "$GPGSA", 6 ))
+     {
+						
+	          			  strcpy(GPS,(char*)buf);
+					  	  printf( "%s",buf);
+					  strcpy(tabla,"gpgsa");
+																
+	}
+	else if (!strncmp( GPR, "$GPGSV", 6 ))
+     {
+
+							strcpy(GPS,(char*)buf);
+						   	  printf( "%s",buf);
+						    strcpy(tabla,"gpgsv");
+	}
+	else if (!strncmp( GPR, "$GPGLL", 5 ))
+     {
+	strcpy(GPS,(char*)buf);
+								  printf( "%s",buf);
+							strcpy(tabla,"gpgll");
+	}
+
+ agrega(con,tabla,Node,GPS);   
+  
+  if (bandera==6){
+			bandera=0;
+		}
+		else {
+			bandera++;
+		}  
+ 
+ }       
+           else {
             Serial.print("receive failed");
           }
           printf("\n");
@@ -200,12 +299,23 @@ int main (int argc, const char* argv[] )
       bcm2835_delay(5);
     }
   }
+mysql_close(con);
+fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
 #endif
   printf( "\n%s Ending\n", __BASEFILE__ );
   bcm2835_close();
+ 
   return 0;
+}
+
+
+void agrega(MYSQL* con,char*tabla, char* Node,char*GPS)
+{
+char consulta[1024];
+sprintf(consulta,"INSERT INTO %s VALUES ('%s','%s')",tabla,Node,GPS);
+if(mysql_query(con,consulta)==0) fprintf(stdout,"\n Datos insertados con exito\n");
 }
 

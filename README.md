@@ -36,7 +36,22 @@ seleccionar la opcion 5
 
 Clonar el repositorio
 ```shell
-https://github.com/cidte/samber.git
+git clone https://github.com/cidte/samber.git
+```
+
+**bcm2835**
+Se debe instalar la libreria bcm2835 la cual se utiliza para acceder a los pines GPIO para controlar el módulo RFM95
+   1. Antes de Descargar la libreria puedes ver la pagina de la libreria en http://www.airspayce.com/mikem/bcm
+   2. Descargar la libreria en el siguiente enlace http://www.airspayce.com/mikem/bcm2835/bcm2835-1.52.tar.gz
+   3. El paso siguiente es ubicar la carpeta de descargas y desde la terminal escribir
+    
+```shell
+   tar zxvf bcm2835-1.xx.tar.gz
+    cd bcm2835-1.xx
+    ./configure
+    make
+   sudo make check
+   sudo make install
 ```
 
 
@@ -51,11 +66,14 @@ make
 4. al hacer esto nos apareceran el ejecutable:ya depende que carpeta se eliga. El modo client(Modo de enviar informacion)
 y el Server(Modo de recepcion de Informacion)
 5. El codigo para el Envio de informacion es
+
 ```shell
 Sudo./rf95_client
 ```
 <img src="https://raw.githubusercontent.com/cidte/samber/master/pictures/Client_funcionando.png" alt="RF95 client">
+
 6. la otra opcion es utilizar el Lora Dragino en modo de recepcion es
+
 ```shell
 sudo./rf95_server
 ```
@@ -109,19 +127,7 @@ Para mayor información [Aqui][1]
 **LIBRERIAS A INSTALAR**
 
  **bcm2835**
-   Se debe instalar la libreria bcm2835 la cual se utiliza para acceder a los pines GPIO para controlar el módulo RFM95
-   1. Antes de Descargar la libreria puedes ver la pagina de la libreria en http://www.airspayce.com/mikem/bcm
-   2. Descargar la libreria en el siguiente enlace http://www.airspayce.com/mikem/bcm2835/bcm2835-1.52.tar.gz
-   3. El paso siguiente es ubicar la carpeta de descargas y desde la terminal escribir
-    
-```shell
-   tar zxvf bcm2835-1.xx.tar.gz
-    cd bcm2835-1.xx
-    ./configure
-    make
-   sudo make check
-   sudo make install
-```
+ Esta aplica para el client como el server por lo cual esta en el apartado de Instrucciones Generales
 
  **Wiringpi**
 
@@ -186,7 +192,11 @@ base de datos.
 MariaDB> quit
 ```
 
+Por ultimo se debe instalar la libreria de mariaDB 
 
+```shell
+sudo apt-get install libmariadbclient-dev
+```
 
 
 

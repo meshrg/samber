@@ -1,31 +1,26 @@
 // rf95_client.cpp
-//
-// Example program showing how to use RH_RF95 on Raspberry Pi
-// Uses the bcm2835 library to access the GPIO pins to drive the RFM95 module
-// Requires bcm2835 library to be already installed
-// http://www.airspayce.com/mikem/bcm2835/
-// Use the Makefile in this directory:
-// cd example/raspi/rf95
-// make
-// sudo ./rf95_client
-//
 // Contributed by Charles-Henri Hallard based on sample RH_NRF24 by Mike Poublon
 
 #include <bcm2835.h>
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
+//#include <time.h>
 
+
+#include <wiringSerial.h>
 #include <RH_RF69.h>
 #include <RH_RF95.h>
 
-// define hardware used change to fit your need
-// Uncomment the board you have, if not listed 
-// uncommment custom board and set wiring tin custom section
+
 
 // LoRasPi board 
 // see https://github.com/hallard/LoRasPI
-#define BOARD_LORASPI
+//#define BOARD_LORASPI
 
 // iC880A and LinkLab Lora Gateway Shield (if RF module plugged into)
 // see https://github.com/ch2i/iC880A-Raspberry-PI
@@ -37,14 +32,14 @@
 
 // Dragino Raspberry PI hat
 // see https://github.com/dragino/Lora
-//#define BOARD_DRAGINO_PIHAT
+#define BOARD_DRAGINO_PIHAT
 
 // Now we include RasPi_Boards.h so this will expose defined 
 // constants with CS/IRQ/RESET/on board LED pins definition
 #include "../RasPiBoards.h"
 
 // Our RFM95 Configuration 
-#define RF_FREQUENCY  868.00
+#define RF_FREQUENCY  915.00
 #define RF_GATEWAY_ID 1 
 #define RF_NODE_ID    10
 
@@ -54,14 +49,14 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
-
+//void lectura_GPS ();
 void sig_handler(int sig)
 {
   printf("\n%s Break received, exiting!\n", __BASEFILE__);
   force_exit=true;
 }
 
-//Main Function
+
 int main (int argc, const char* argv[] )
 {
   static unsigned long last_millis;
@@ -69,7 +64,16 @@ int main (int argc, const char* argv[] )
   
   signal(SIGINT, sig_handler);
   printf( "%s\n", __BASEFILE__);
+ 
+ int alto=10; 
+int bandera=0;
+int siz;		
+int contador=0; 
+char info[74]={};		
+uint8_t data[74]={};
 
+ 
+	  
   if (!bcm2835_init()) {
     fprintf( stderr, "%s bcm2835_init() Failed\n\n", __BASEFILE__ );
     return 1;
@@ -110,10 +114,7 @@ int main (int argc, const char* argv[] )
     printf( "\nRF95 module seen OK!\r\n");
 
 #ifdef RF_IRQ_PIN
-    // Since we may check IRQ line with bcm_2835 Rising edge detection
-    // In case radio already have a packet, IRQ is high and will never
-    // go to low so never fire again 
-    // Except if we clear IRQ flags and discard one if any by checking
+
     rf95.available();
 
     // Now we can enable Rising edge detection
@@ -148,55 +149,122 @@ int main (int argc, const char* argv[] )
     
     // Where we're sending packet
     rf95.setHeaderTo(RF_GATEWAY_ID);  
-
+  //GPS();
     printf("RF95 node #%d init OK @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
-
+ int l=1;
     last_millis = millis();
+   while (!force_exit) {
+	       
+   
+while (l=1)
+{  
 
     //Begin the main body of code
-    while (!force_exit) {
+ 
+		
+		uint8_t fd;
+if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
+  {
+    fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
+   // return 1 ;
+  }
+
+ //uint8_t fd  
+ char GPS [700]={} ;
+ for (int j=0;j<700;j++)
+  {
+	  GPS[j]=serialGetchar (fd);
+}
+  //lectura_GPS ();
+   char * GPRM;
+	   GPRM=strchr(GPS,'$');
+	 serialClose(fd);
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
-      // Send every 5 seconds
+       //Send every 5 seconds
       if ( millis() - last_millis > 5000 ) {
-        last_millis = millis();
+        //last_millis = millis();
 
 #ifdef RF_LED_PIN
         led_blink = millis();
         digitalWrite(RF_LED_PIN, HIGH);
 #endif
-        
-        // Send a message to rf95_server
-        uint8_t data[] = "Hi Raspi!";
-        uint8_t len = sizeof(data);
-        
-        printf("Sending %02d bytes to node #%d => ", len, RF_GATEWAY_ID );
-        printbuffer(data, len);
-        printf("\n" );
-        rf95.send(data, len);
-        rf95.waitPacketSent();
-/*
-        // Now wait for a reply
-        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-        uint8_t len = sizeof(buf);
+	  
+int i=GPRM-GPS;	
+char *GPR;
+const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  
 
-        if (rf95.waitAvailableTimeout(1000)) { 
-          // Should be a reply message for us now   
-          if (rf95.recv(buf, &len)) {
-            printf("got reply: ");
-            printbuffer(buf,len);
-            printf("\nRSSI: %d\n", rf95.lastRssi());
-          } else {
-            printf("recv failed");
-          }
-        } else {
-          printf("No reply, is rf95_server running?\n");
-        }
-*/
-        
-      }
 
+
+ GPR = strstr(GPS,ABR[bandera]);
+   if (!strncmp( GPR, "$GPRMC", 5 ))
+    {
+      siz=71;
+    }
+    else if (!strncmp( GPR, "$GPVTG", 5 ))
+     {
+		siz=38;
+	}
+	else if (!strncmp( GPR, "$GPTXT", 5 ))
+     {
+		siz=33;
+	}
+	else if (!strncmp( GPR, "$GPGGA", 5 ))
+     {
+		siz=73;
+	}
+	else if (!strncmp( GPR, "$GPGSA", 6 ))
+     {
+		siz=57;
+	}
+	else if (!strncmp( GPR, "$GPGSV", 6 ))
+     {
+		siz=68;
+	}
+	else if (!strncmp( GPR, "$GPGLL", 5 ))
+     {
+		siz=49;
+	}
+	
+	 strncpy (info, GPR,siz);     
+						
+	 
+				     char * Gs;
+					Gs=strchr(info,'*');
+					int gv = Gs-info;
+					int ind= gv+3; 
+				strncpy ((char *)data, info, ind);
+				
+		if (bandera==6){
+			bandera=0;
+		}
+		else {
+			bandera++;
+		}
+		if (contador==alto) {
+return EXIT_SUCCESS;
+ }
+
+
+ if (data[0]=='$')
+ {
+
+  uint8_t len = sizeof(data);
+  printf("Enviando [%d] al node #%d => ",contador,RF_GATEWAY_ID );
+	   contador= contador+1;
+       printbuffer(data, len);
+         printf (" \n");printf (" \n");printf("\n" );printf("\n" );
+       rf95.send(data, len);
+       rf95.waitPacketSent();
+       memset(&data,' ', sizeof(data));     
+       memset(&info,' ', sizeof(info));
+ }
+ 
+break;
+     }
+   }
+       }
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
       if (led_blink && millis()-led_blink>200) {
@@ -209,7 +277,8 @@ int main (int argc, const char* argv[] )
       // Since we do nothing until each 5 sec
       bcm2835_delay(100);
     }
-  }
+//}
+  //}
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
@@ -219,3 +288,13 @@ int main (int argc, const char* argv[] )
   return 0;
 }
 
+
+ //void lectura_GPS (){
+ //uint8_t fd; 
+ //char GPS [1000]={} ;
+ //for (int j=0;j<1000;j++)
+  //{
+	  //GPS[j]=serialGetchar (fd);
+//}
+
+//}
