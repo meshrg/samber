@@ -39,7 +39,9 @@ Clonar el repositorio
 git clone https://github.com/cidte/samber.git
 ```
 
+**Libreria a Instalar***
 **bcm2835**
+
 Se debe instalar la libreria bcm2835 la cual se utiliza para acceder a los pines GPIO para controlar el módulo RFM95
    1. Antes de Descargar la libreria puedes ver la pagina de la libreria en http://www.airspayce.com/mikem/bcm
    2. Descargar la libreria en el siguiente enlace http://www.airspayce.com/mikem/bcm2835/bcm2835-1.52.tar.gz
