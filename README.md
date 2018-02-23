@@ -82,7 +82,7 @@ sudo./rf95_server
 <img src="https://raw.githubusercontent.com/cidte/samber/master/pictures/Server_funcionando.png" alt="RF95 client">
 
 ## Cliente 
-================================================================================================================================
+=========================================================================================================
 
 Una Ves habilitado SPI, VNC y SSH. Se prosigue a Realizar lo siguiente, escribir en la linea de comandos:
 
@@ -141,7 +141,7 @@ Para mayor información [Aqui][1]
 
 
 ## Server
-================================================================================================================================
+============================================================================================================
 
 **Base de datos**
 escribir en la linea de comandos 
@@ -265,7 +265,7 @@ Entrar a una base de datos mysql
 
 Con el comando siguientes es para acceder a la base de datos
 ```shell
- mysql -u Samber -p
+ mysql -u samber -p
 ```
 nos pedira que ingresar la contraseña.
 
@@ -307,7 +307,7 @@ se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es u
 ningún registro debería decir que esta vacía.
 
 ```shell
->SELECT * FROM gprmc
+>SELECT * FROM gprmc;
 ```
 Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
 
