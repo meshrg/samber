@@ -60,7 +60,7 @@ Se debe instalar la libreria bcm2835 la cual se utiliza para acceder a los pines
 **Ejecucion del Programa**
 1. Abrir la Terminal y Buscar la ubicaciones de la carpeta Samber
 2. seguir la siguiente ruta
-/Samber/Client o /Samber/Server
+/samber/client o /samber/server
 3. Escribir  
 ```shell  
 make 
