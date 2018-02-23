@@ -42,8 +42,8 @@
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "localhost"
-#define USER "Samber" 
+#define HOST "10.1.135.104"
+#define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
 // Variables 

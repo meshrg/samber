@@ -82,7 +82,7 @@ sudo./rf95_server
 <img src="https://raw.githubusercontent.com/cidte/samber/master/pictures/Server_funcionando.png" alt="RF95 client">
 
 ## Cliente 
-================================
+================================================================================================================================
 
 Una Ves habilitado SPI, VNC y SSH. Se prosigue a Realizar lo siguiente, escribir en la linea de comandos:
 
@@ -141,13 +141,60 @@ Para mayor información [Aqui][1]
 
 
 ## Server
-================================
+================================================================================================================================
 
 **Base de datos**
 escribir en la linea de comandos 
 ```shell
 $ sudo apt-get install mysql-server
 ```
+Se debe instalar la libreria de mariaDB 
+
+```shell
+sudo apt-get install libmariadbclient-dev
+```
+
+**ACCESO REMOTO A MYSQL**
+
+Por defecto, el servidor MySQL limita los accesos a la dirección local denegando el servicio a
+todas las peticiones de conexiones entrantes, adicionalmente, cada usuario se puede limitar a un segmento de red o una dirección IP en específico.
+
+Para habilitar las peticiones remotas se debe de modificar el archivo /et c/m y sql /mar i ad b.con f .d /50−
+ser ver.cn f .
+
+```shell
+$ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+El parámetro bind−address = 127,0,0,1 delimita las direcciones IP donde se pueden realizar
+las conexiones entrantes, para permitir la conexión desde cualquier dirección IP este se cambia
+por 0,0,0,0.
+
+```shell
+bind-address = 0.0.0.0
+```
+
+Para que los cambios surtan efecto se debe de reiniciar el servicio de MySQL.
+
+```shell
+$ sudo systemctl restart mysql.service
+$ sudo systemctl restart mariadb.service
+```
+
+Para verificar que los cambios funcionaron se consulta si el puerto 3306 de MySQL está
+abierto.
+
+```shell
+$ sudo netstat -anp | grep 3306
+```
+
+Mostrando como resultado que el puerto de MySQL está en escucha
+
+```shell
+pi@raspserver:~ $ sudo netstat -anp | grep 3306
+tcp 0 0 0.0.0.0:3306 0.0.0.0:* LISTEN 529/mysqld
+```
+
 
 Dado que durante la instalación de MySQL se crea un root sin contraseña, es necesario
 eliminar la cuenta creada por defecto y crear una con contraseña.
@@ -164,19 +211,20 @@ MySQL.
 MariaDB> DROP USER 'root'@'localhost';
 ```
 
-El siguiente comando crea una nueva cuenta de root con acceso desde localhost y con
-contraseña.
+Dentro de MySQL con el usuario root se debe de crear un usuario que tenga permiso de
+conectarse desde cualquier IP. 
 
 ```shell
-MariaDB>CREATE USER 'Samber'@'localhost' IDENTIFIED BY 'cidte';
+MariaDB>CREATE USER 'samber'@'%' IDENTIFIED BY 'cidte';
 
 ```
 
 El comando de GRANT ALL PRIVILEGES otorga privilegios de crear, editar y eliminar tablas
-de la base de datos al usuario que se le indique.
+de la base de datos al usuario que se le indique. El símbolo ’ %’ admite todas las direcciones IP.
+Una vez creado el usuario, se le asignan permisos como administrador.
 
 ```shell
-MariaDB>GRANT ALL PRIVILEGES ON *.* TO 'Samber'@'localhost';
+MariaDB>GRANT ALL PRIVILEGES ON *.* TO 'samber'@'%';
 ```
 
 
@@ -194,12 +242,21 @@ base de datos.
 MariaDB> quit
 ```
 
-Por ultimo se debe instalar la libreria de mariaDB 
+
+Una vez creado el usuario, se puede comprobar que este tiene acceso desde cualquier dirección, en el caso de Linux se puede utilizar un cliente de MySQL.
+
 
 ```shell
-sudo apt-get install libmariadbclient-dev
+sudo apt-get install mysql-client
 ```
 
+Para acceder a la base de datos remotamente se indica la dirección IP del HOST y el usuario
+con el que se desea conectar.
+
+
+```shell
+mysql -h HOST -u USERNAME -p
+```
 
 
 **CREAR BASE DE DATOS  DENTRO DE MYSQL**
@@ -241,7 +298,7 @@ En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparent
 un ejemplo es:
 
 ```shell
->CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (70));
+>CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
 ```
 
 se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
@@ -255,7 +312,12 @@ ningún registro debería decir que esta vacía.
 Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
 
 ```shell
->CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
+CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
+CREATE TABLE gptxt ( Node INT, GPTXT VARCHAR (33));
+CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74));
+CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62));
+CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69));
+CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
 ```
 
 

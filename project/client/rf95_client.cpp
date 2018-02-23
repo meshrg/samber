@@ -1,3 +1,4 @@
+
 // rf95_client.cpp
 // Contributed by Charles-Henri Hallard based on sample RH_NRF24 by Mike Poublon
 
@@ -9,7 +10,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-//#include <time.h>
 
 
 #include <wiringSerial.h>
@@ -43,6 +43,15 @@
 #define RF_GATEWAY_ID 1 
 #define RF_NODE_ID    10
 
+long double alto=1000000; 
+int bandera=0;
+int siz;		
+long double contador=0; 
+char info[74]={};		
+uint8_t data[74]={};
+
+
+
 // Create an instance of a driver
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 //RH_RF95 rf95(RF_CS_PIN);
@@ -65,12 +74,7 @@ int main (int argc, const char* argv[] )
   signal(SIGINT, sig_handler);
   printf( "%s\n", __BASEFILE__);
  
- int alto=10; 
-int bandera=0;
-int siz;		
-int contador=0; 
-char info[74]={};		
-uint8_t data[74]={};
+
 
  
 	  
@@ -159,26 +163,22 @@ uint8_t data[74]={};
 while (l=1)
 {  
 
-    //Begin the main body of code
  
-		
-		uint8_t fd;
+uint8_t fd;
 if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   {
     fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
    // return 1 ;
   }
 
- //uint8_t fd  
  char GPS [700]={} ;
  for (int j=0;j<700;j++)
   {
 	  GPS[j]=serialGetchar (fd);
 }
-  //lectura_GPS ();
-   char * GPRM;
-	   GPRM=strchr(GPS,'$');
-	 serialClose(fd);
+
+     serialClose(fd);
+    // printf(" %s ",GPS);
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
@@ -191,13 +191,14 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
         digitalWrite(RF_LED_PIN, HIGH);
 #endif
 	  
-int i=GPRM-GPS;	
+	
 char *GPR;
-const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  
+const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  //
 
 
 
  GPR = strstr(GPS,ABR[bandera]);
+ //GPR = strstr(GPS,ABR[3]);
    if (!strncmp( GPR, "$GPRMC", 5 ))
     {
       siz=71;
@@ -212,24 +213,23 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 	}
 	else if (!strncmp( GPR, "$GPGGA", 5 ))
      {
-		siz=73;
+		siz=74;
 	}
 	else if (!strncmp( GPR, "$GPGSA", 6 ))
      {
-		siz=57;
+		
+		siz=62;
 	}
-	else if (!strncmp( GPR, "$GPGSV", 6 ))
+	else if (!strncmp( GPR, "$GPGSV", 5 ))
      {
-		siz=68;
+		siz=69;
 	}
 	else if (!strncmp( GPR, "$GPGLL", 5 ))
      {
-		siz=49;
-	}
-	
-	 strncpy (info, GPR,siz);     
-						
-	 
+		siz=50;
+		}	
+				strncpy (info, GPR,siz); 
+				//printf(" gpgga imprime %s \n ",info);     
 				     char * Gs;
 					Gs=strchr(info,'*');
 					int gv = Gs-info;
@@ -243,26 +243,39 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 			bandera++;
 		}
 		if (contador==alto) {
-return EXIT_SUCCESS;
+		
+		return EXIT_SUCCESS;
  }
 
+ //else if(contador==slep) {
+	 //printf("se dormira ");
+		//sleep(10);
+		//bcm2835_delay(150);
+		 //rf95.available();
+		//contador=0;
+		//cont_mil=cont_mil+1;
+		//printf("\n");
+		
+//}
 
  if (data[0]=='$')
  {
 
   uint8_t len = sizeof(data);
-  printf("Enviando [%d] al node #%d => ",contador,RF_GATEWAY_ID );
+  printf("Enviando [%lf]  al node #%d => ",contador ,RF_GATEWAY_ID );
 	   contador= contador+1;
        printbuffer(data, len);
-         printf (" \n");printf (" \n");printf("\n" );printf("\n" );
+       printf (" \n");printf (" \n");printf (" \n");
        rf95.send(data, len);
        rf95.waitPacketSent();
        memset(&data,' ', sizeof(data));     
        memset(&info,' ', sizeof(info));
+       
  }
  
-break;
+  break;
      }
+     
    }
        }
 #ifdef RF_LED_PIN
@@ -279,6 +292,7 @@ break;
     }
 //}
   //}
+  
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
@@ -289,12 +303,3 @@ break;
 }
 
 
- //void lectura_GPS (){
- //uint8_t fd; 
- //char GPS [1000]={} ;
- //for (int j=0;j<1000;j++)
-  //{
-	  //GPS[j]=serialGetchar (fd);
-//}
-
-//}
