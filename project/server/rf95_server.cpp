@@ -4,12 +4,12 @@
 #include <string.h>
 #include <stdint.h>
 #include <mysql/mysql.h>
-
+#include <errno.h>
+#include <wiringSerial.h>
 #include <bcm2835.h>
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
-
 #include <RH_RF69.h>
 #include <RH_RF95.h>
 
@@ -42,16 +42,19 @@
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.104"
+#define HOST "10.1.135.120"//"10.1.135.120"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
 // Variables 
 char Node [3];
-char GPS[73];
+char Cliente[73];
+char Server[73];
+char GPS[700]={} ;
 
 char tabla[]= ""; 
 char buffer[73];
+char Infor[73];
 int band;
 int bandera=0;
 
@@ -61,7 +64,8 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 
 // funciones
 //void muestra(MYSQL* con,char* consulta0,MYSQL_ROW row,MYSQL_RES *res);
-void agrega (MYSQL* con, char *tabla, char* Node,char*GPS);
+void agrega (MYSQL* con, char *tabla, char* Node,char*Cliente,char*Server);
+
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
 
@@ -70,6 +74,7 @@ void sig_handler(int sig)
   printf("\n%s Break received, exiting!\n", __BASEFILE__);
   force_exit=true;
 }
+
 
 //Main Function
 int main (int argc, const char* argv[] )
@@ -158,6 +163,34 @@ int contador=0;
     // we're sniffing to display, it's a demo
     rf95.setPromiscuous(true);
 
+//PUERTO  SERIAL
+while (!force_exit) {
+
+
+ 
+uint8_t fd;
+if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
+  {
+    fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
+   // return 1 ;
+  }
+
+
+ for (int j=0;j<700;j++)
+  {
+	  GPS[j]=serialGetchar (fd);
+}
+
+     serialClose(fd);
+    // printf(" %s ",GPS);
+
+//break;
+
+
+
+
+//
+
     // We're ready to listen for incoming message
     rf95.setModeRx();
 
@@ -173,6 +206,11 @@ int contador=0;
 				}	
     while (!force_exit) {
   //int dos=1;
+ 
+ 
+
+ 
+ 
  
 #ifdef RF_IRQ_PIN
       // We have a IRQ pin ,pool it instead reading
@@ -214,13 +252,21 @@ int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
 
 char *GPR;
+char *Find;
 strncpy (buffer, (char*)buf,6);
 
-
+Find = strstr(GPS,buffer);
+  char * Gs;
+  Gs=strchr(Find,'*');
+ int gv = Gs-Find;
+ int ind= gv+3; 
+strncpy (Infor, Find,ind);
 GPR = strstr((char*)buf,buffer);
+
    if (!strncmp( GPR, "$GPRMC", 5 ))
     {
-				strcpy(GPS,(char*)buf);	
+				strcpy(Cliente,(char*)buf);	
+				strcpy(Server,Infor);
 				printf( "%s",buf);
 				strcpy(tabla,"gprmc");
       
@@ -228,45 +274,51 @@ GPR = strstr((char*)buf,buffer);
     else if (!strncmp( GPR, "$GPVTG", 5 ))
     
      {
-					strcpy(GPS,(char*)buf);	
+					strcpy(Cliente,(char*)buf);
+					strcpy(Server,Infor);	
 					printf( "%s",buf);
 					strcpy(tabla,"gpvtg");
 	}
 	else if (!strncmp( GPR, "$GPTXT", 5 ))
      {
-		strcpy(GPS,(char*)buf);
-						  printf( "%s",buf);
-						strcpy(tabla,"gptxt");
+					   strcpy(Cliente,(char*)buf);
+					   strcpy(Server,Infor);
+					   printf( "%s",buf);
+					   strcpy(tabla,"gptxt");
 	}
 	else if (!strncmp( GPR, "$GPGGA", 5 ))
      {
-		strcpy(GPS,(char*)buf);
-			  printf( "%s",buf);
-			  strcpy(tabla,"gpgga");
+						strcpy(Cliente,(char*)buf);
+						strcpy(Server,Infor);
+						printf( "%s",buf);
+						strcpy(tabla,"gpgga");
 	}
 	else if (!strncmp( GPR, "$GPGSA", 6 ))
      {
 						
-	          			  strcpy(GPS,(char*)buf);
+	          			  strcpy(Cliente,(char*)buf);
+					  	  strcpy(Server,Infor);
 					  	  printf( "%s",buf);
-					  strcpy(tabla,"gpgsa");
+						  strcpy(tabla,"gpgsa");
 																
 	}
 	else if (!strncmp( GPR, "$GPGSV", 6 ))
      {
 
-							strcpy(GPS,(char*)buf);
-						   	  printf( "%s",buf);
+							strcpy(Cliente,(char*)buf);
+						   	 strcpy(Server,Infor);
+						   	 printf( "%s",buf);
 						    strcpy(tabla,"gpgsv");
 	}
 	else if (!strncmp( GPR, "$GPGLL", 5 ))
      {
-	strcpy(GPS,(char*)buf);
-								  printf( "%s",buf);
-							strcpy(tabla,"gpgll");
+						strcpy(Cliente,(char*)buf);
+						strcpy(Server,Infor);
+						printf( "%s",buf);
+						strcpy(tabla,"gpgll");
 	}
 
- agrega(con,tabla,Node,GPS);   
+ agrega(con,tabla,Node,Cliente,Server);   
   
   if (bandera==6){
 			bandera=0;
@@ -276,6 +328,7 @@ GPR = strstr((char*)buf,buffer);
 		}  
  
  }       
+} 
            else {
             Serial.print("receive failed");
           }
@@ -312,10 +365,10 @@ fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
 }
 
 
-void agrega(MYSQL* con,char*tabla, char* Node,char*GPS)
+void agrega(MYSQL* con,char*tabla, char* Node,char*Cliente,char*Server)
 {
 char consulta[1024];
-sprintf(consulta,"INSERT INTO %s VALUES ('%s','%s')",tabla,Node,GPS);
+sprintf(consulta,"INSERT INTO %s VALUES ('%s','%s','%s')",tabla,Node,Cliente,Server);
 if(mysql_query(con,consulta)==0) fprintf(stdout,"\n Datos insertados con exito\n");
 }
 

@@ -5,7 +5,7 @@
 
 CC            = g++
 CFLAGS        = -DRASPBERRY_PI -DBCM2835_NO_DELAY_COMPATIBILITY -D__BASEFILE__=\"$*\" `mysql_config --cflags` 
-LIBS          = -lbcm2835 `mysql_config --libs `
+LIBS          = -lbcm2835 `mysql_config --libs ` -lwiringPi
 RADIOHEADBASE = ../../
 INCLUDE       = -I$(RADIOHEADBASE)
 
