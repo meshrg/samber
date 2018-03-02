@@ -298,7 +298,7 @@ En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparent
 un ejemplo es:
 
 ```shell
->CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
+>CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71),GPRMC_S VARCHAR (71));
 ```
 
 se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
@@ -312,12 +312,12 @@ ningún registro debería decir que esta vacía.
 Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
 
 ```shell
-CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (36));
-CREATE TABLE gptxt ( Node INT, GPTXT VARCHAR (33));
-CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74));
-CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62));
-CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69));
-CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
+CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (38),GPVTG_S VARCHAR (38));
+CREATE TABLE gptxt ( Node INT, GPTXT VARCHAR (33),GPTXT_S VARCHAR (33));
+CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74),GPGGA_S VARCHAR (74));
+CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62),GPGSA_S VARCHAR (62));
+CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69),GPGSV_S VARCHAR (69));
+CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50),GPGLL_S VARCHAR (50));
 ```
 
 
