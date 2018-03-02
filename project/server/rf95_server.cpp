@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <RH_RF69.h>
 #include <RH_RF95.h>
+#include <math.h>
 
 // define hardware used change to fit your need
 // Uncomment the board you have, if not listed 
@@ -65,6 +66,7 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 // funciones
 //void muestra(MYSQL* con,char* consulta0,MYSQL_ROW row,MYSQL_RES *res);
 void agrega (MYSQL* con, char *tabla, char* Node,char*Cliente,char*Server);
+void checksum(char* Find,char* GPS,char* buffer,char *Infor);
 
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
@@ -263,6 +265,18 @@ Find = strstr(GPS,buffer);
 strncpy (Infor, Find,ind);
 GPR = strstr((char*)buf,buffer);
 
+// DIstancia entre dos puntos
+//cliente=2246.1193 
+
+//float PI = 3.14159265358979323846
+//float Lat1 = Lat1 * PI / 180
+//float Lon1 = Lon1 * PI / 180
+//float Lat2 = Lat2 * PI / 180
+//float Lon2 = Lon2 * PI / 180
+//float  D = 6378.137 * ACos( Cos( Lat1 ) * Cos( Lat2 ) * Cos( Lon2 - Lon1 ) + Sin( Lat1 ) * Sin( Lat2 );
+//printf("Distancia es de %lf metros  ",D);
+//
+
    if (!strncmp( GPR, "$GPRMC", 5 ))
     {
 				strcpy(Cliente,(char*)buf);	
@@ -319,7 +333,8 @@ GPR = strstr((char*)buf,buffer);
 	}
 
  agrega(con,tabla,Node,Cliente,Server);   
-  
+memset(&Infor,' ', sizeof(Infor));  
+
   if (bandera==6){
 			bandera=0;
 		}
