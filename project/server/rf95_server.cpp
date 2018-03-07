@@ -13,6 +13,11 @@
 #include <RH_RF69.h>
 #include <RH_RF95.h>
 #include <math.h>
+#include <iostream>
+
+using namespace std;
+
+#define PI 3.14159265358979323846
 
 // define hardware used change to fit your need
 // Uncomment the board you have, if not listed 
@@ -43,7 +48,7 @@
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.120"//"10.1.135.120"
+#define HOST "10.1.135.132"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -59,6 +64,9 @@ char Infor[73];
 int band;
 int bandera=0;
 
+
+
+
 // Create an instance of a driver
 RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 //RH_RF95 rf95(RF_CS_PIN);
@@ -66,7 +74,11 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 // funciones
 //void muestra(MYSQL* con,char* consulta0,MYSQL_ROW row,MYSQL_RES *res);
 void agrega (MYSQL* con, char *tabla, char* Node,char*Cliente,char*Server);
-void checksum(char* Find,char* GPS,char* buffer,char *Infor);
+double distancia (float lat1,float lon1 , float lat2, float lon2);
+double busca (char Cliente,char Server); 
+
+double Latitud (double la1);
+double Longitud (double lo1);
 
 //Flag for Ctrl-C
 volatile sig_atomic_t force_exit = false;
@@ -200,12 +212,12 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
     printf( "Listening packet...\n" );
 
     //Begin the main body of code
-    con=mysql_init(NULL);	
-    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
-				{	
-	fprintf(stderr, "%s\n", mysql_error(con));
-	 exit(1);
-				}	
+    //con=mysql_init(NULL);	
+    //if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				//{	
+	//fprintf(stderr, "%s\n", mysql_error(con));
+	 //exit(1);
+				//}	
     while (!force_exit) {
   //int dos=1;
  
@@ -247,6 +259,8 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
+            printbuffer(buf, len);
+            
             
 char buffer[6]={};
 char Node[3];
@@ -265,75 +279,95 @@ Find = strstr(GPS,buffer);
 strncpy (Infor, Find,ind);
 GPR = strstr((char*)buf,buffer);
 
-// DIstancia entre dos puntos
-//cliente=2246.1193 
 
-//float PI = 3.14159265358979323846
-//float Lat1 = Lat1 * PI / 180
-//float Lon1 = Lon1 * PI / 180
-//float Lat2 = Lat2 * PI / 180
-//float Lon2 = Lon2 * PI / 180
-//float  D = 6378.137 * ACos( Cos( Lat1 ) * Cos( Lat2 ) * Cos( Lon2 - Lon1 ) + Sin( Lat1 ) * Sin( Lat2 );
-//printf("Distancia es de %lf metros  ",D);
-//
 
-   if (!strncmp( GPR, "$GPRMC", 5 ))
-    {
-				strcpy(Cliente,(char*)buf);	
-				strcpy(Server,Infor);
-				printf( "%s",buf);
-				strcpy(tabla,"gprmc");
-      
-    }
-    else if (!strncmp( GPR, "$GPVTG", 5 ))
+
+
+
+   //if (!strncmp( GPR, "$GPRMC", 5 ))
+    //{
+				//strcpy(Cliente,(char*)buf);	
+				//strcpy(Server,Infor);
+				//printf( "%s",buf);
+				//strcpy(tabla,"gprmc");
+
+
+//char l1[10],lo1[10],l2[10],lo2[10];
+//double lat1,lon1,lat2,lon2;
+//int k;
+//int j;
+//for (int i=0,k=20;k<29;i++,k++)
+//{
+	//l1[i]=Cliente[k];
+	//lo1[i]=Server[k];
+//}
+//lat1=Latitud(atof(l1));
+//lat2=Latitud(atof(lo1));
+
+
+//for (int m=0,j=32;j<42;m++,j++)
+//{
+	//l2[m]=Cliente[j];
+	//lo2[m]=Server[j];
+//}
+//lon1=Longitud(atof(l2));
+//lon2=Longitud(atof(lo2));
+
+
+//double dis=distancia(lat1,lon1,lat2,lon2);  
+//printf("la dista en metros es  %f ",dis);
+
     
-     {
-					strcpy(Cliente,(char*)buf);
-					strcpy(Server,Infor);	
-					printf( "%s",buf);
-					strcpy(tabla,"gpvtg");
-	}
-	else if (!strncmp( GPR, "$GPTXT", 5 ))
-     {
-					   strcpy(Cliente,(char*)buf);
-					   strcpy(Server,Infor);
-					   printf( "%s",buf);
-					   strcpy(tabla,"gptxt");
-	}
-	else if (!strncmp( GPR, "$GPGGA", 5 ))
-     {
-						strcpy(Cliente,(char*)buf);
-						strcpy(Server,Infor);
-						printf( "%s",buf);
-						strcpy(tabla,"gpgga");
-	}
-	else if (!strncmp( GPR, "$GPGSA", 6 ))
-     {
+    //}
+    //else if (!strncmp( GPR, "$GPVTG", 5 ))
+    
+     //{
+					//strcpy(Cliente,(char*)buf);
+					//strcpy(Server,Infor);	
+					//printf( "%s",buf);
+					//strcpy(tabla,"gpvtg");
+	//}
+	//else if (!strncmp( GPR, "$GPTXT", 5 ))
+     //{
+					   //strcpy(Cliente,(char*)buf);
+					   //strcpy(Server,Infor);
+					   //printf( "%s",buf);
+					   //strcpy(tabla,"gptxt");
+	//}
+	//else if (!strncmp( GPR, "$GPGGA", 5 ))
+     //{
+						//strcpy(Cliente,(char*)buf);
+						//strcpy(Server,Infor);
+						//printf( "%s",buf);
+						//strcpy(tabla,"gpgga");
+	//}
+	//else if (!strncmp( GPR, "$GPGSA", 6 ))
+     //{
 						
-	          			  strcpy(Cliente,(char*)buf);
-					  	  strcpy(Server,Infor);
-					  	  printf( "%s",buf);
-						  strcpy(tabla,"gpgsa");
+	          			  //strcpy(Cliente,(char*)buf);
+					  	  //strcpy(Server,Infor);
+					  	  //printf( "%s",buf);
+						  //strcpy(tabla,"gpgsa");
 																
-	}
-	else if (!strncmp( GPR, "$GPGSV", 6 ))
-     {
+	//}
+	//else if (!strncmp( GPR, "$GPGSV", 6 ))
+     //{
 
-							strcpy(Cliente,(char*)buf);
-						   	 strcpy(Server,Infor);
-						   	 printf( "%s",buf);
-						    strcpy(tabla,"gpgsv");
-	}
-	else if (!strncmp( GPR, "$GPGLL", 5 ))
-     {
-						strcpy(Cliente,(char*)buf);
-						strcpy(Server,Infor);
-						printf( "%s",buf);
-						strcpy(tabla,"gpgll");
-	}
+							//strcpy(Cliente,(char*)buf);
+						   	 //strcpy(Server,Infor);
+						   	 //printf( "%s",buf);
+						    //strcpy(tabla,"gpgsv");
+	//}
+	//else if (!strncmp( GPR, "$GPGLL", 6 ))
+     //{
+						//strcpy(Cliente,(char*)buf);
+						//strcpy(Server,Infor);
+						//printf( "%s",buf);
+						//strcpy(tabla,"gpgll");
+	//}
 
- agrega(con,tabla,Node,Cliente,Server);   
-memset(&Infor,' ', sizeof(Infor));  
+ //agrega(con,tabla,Node,Cliente,Server);   
+//memset(&Infor,' ', sizeof(Infor));  
 
   if (bandera==6){
 			bandera=0;
@@ -367,8 +401,8 @@ memset(&Infor,' ', sizeof(Infor));
       bcm2835_delay(5);
     }
   }
-mysql_close(con);
-fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
+//mysql_close(con);
+//fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
@@ -386,4 +420,66 @@ char consulta[1024];
 sprintf(consulta,"INSERT INTO %s VALUES ('%s','%s','%s')",tabla,Node,Cliente,Server);
 if(mysql_query(con,consulta)==0) fprintf(stdout,"\n Datos insertados con exito\n");
 }
+
+double distancia (float lat1,float lon1 , float lat2, float lon2)
+{
+int   R = 6371000; // km
+double dLat = ((lat2-lat1)*(M_PI/180) );
+double dLon = ((lon2-lon1))*(M_PI/180);;
+double a = (sin(dLat/2) * sin(dLat/2) +cos(lat1) *cos(lat2) *sin(dLon/2) * sin(dLon/2));        
+double  c = 2 * atan2(sqrt(a),sqrt(1-a));
+double   d = (R * c);
+//printf("la distancia %f metros",d);	
+
+
+//double dist=(acos((sin((lat1))*sin((lat2))) + (cos((lat1))*cos((lat2))*cos((lon1-lon2)))));
+//double d = (dist*111.13384)*1000; 
+//printf("la dist en mts es  %f  ",d);
+
+return d;
+}
+
+
+//double distancia (float lat1,float lon1 , float lat2, float lon2)
+//{
+
+ //double lats =(lat1 - lat2);
+ //double lngs =(lon1 - lon2);
+ 
+            ////Paso a metros
+            //double latm = lats * 60 * 1852;
+            //double lngm = (lngs * cos(lat1 * PI / 180)) * 60 * 1852;
+            //double d = sqrt(pow(latm, 2) + pow(lngm, 2))/100;
+            //printf( " dist en %f metros",d);
+
+	
+//return d;
+//}
+
+
+
+double Latitud (double la1)
+{
+double lat1=(la1/100);
+float Latitud1;
+float conv;
+conv= ((lat1)-floor(lat1));
+Latitud1=(5*conv/3)+floor(lat1);
+return Latitud1 ;
+}
+
+
+
+double Longitud (double lo1)
+{
+double lon1=lo1/100;
+float Longitud1;
+float conv;
+conv= ((lon1)-floor(lon1));
+Longitud1=(5*conv/3)+floor(lon1);
+
+return Longitud1 ;
+}
+
+
 
