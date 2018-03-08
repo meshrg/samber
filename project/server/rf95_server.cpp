@@ -48,7 +48,7 @@ using namespace std;
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.132"//"192.168.0.8"
+#define HOST "10.1.135.120"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -61,6 +61,7 @@ char GPS[700]={} ;
 char tabla[]= ""; 
 char buffer[73];
 char Infor[73];
+char Cort[73];
 int band;
 int bandera=0;
 
@@ -212,12 +213,12 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
     printf( "Listening packet...\n" );
 
     //Begin the main body of code
-    //con=mysql_init(NULL);	
-    //if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
-				//{	
-	//fprintf(stderr, "%s\n", mysql_error(con));
-	 //exit(1);
-				//}	
+    con=mysql_init(NULL);	
+    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				{	
+	fprintf(stderr, "%s\n", mysql_error(con));
+	 exit(1);
+				}	
     while (!force_exit) {
   //int dos=1;
  
@@ -259,7 +260,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-            printbuffer(buf, len);
+            //printbuffer(buf, len);
             
             
 char buffer[6]={};
@@ -269,14 +270,34 @@ snprintf(Node, 3, "%d", Nod);
 
 char *GPR;
 char *Find;
+char *p;
 strncpy (buffer, (char*)buf,6);
+//printf("buffer ***%s****\n",p);
+
 
 Find = strstr(GPS,buffer);
-  char * Gs;
-  Gs=strchr(Find,'*');
- int gv = Gs-Find;
- int ind= gv+3; 
-strncpy (Infor, Find,ind);
+if (Find[0]=='$')
+{
+strncpy(Cort,Find,74) ;
+//printf("\n");
+//printf("\n");
+//printf("Find encuentra ***%s****\n",Cort);
+ // printf("\n");
+  
+ char * Gs;
+  Gs=strchr(Cort,'*');
+ //printf("buffer ***%s****\n",p);
+ //int gv = Gs-Cort;
+ //int ind= gv+3; 
+
+Gs = (char*)memchr (Cort, '*', strlen(Cort));
+int gv = Gs-Cort;
+int ind= gv+3; 
+//printf("posicion donde encontro el * %d %d",gv,ind);
+strncpy (Infor,Cort,ind);
+//printf(" Info = ***%s***\n",Infor);
+}
+
 GPR = strstr((char*)buf,buffer);
 
 
@@ -284,91 +305,91 @@ GPR = strstr((char*)buf,buffer);
 
 
 
-   //if (!strncmp( GPR, "$GPRMC", 5 ))
-    //{
-				//strcpy(Cliente,(char*)buf);	
-				//strcpy(Server,Infor);
-				//printf( "%s",buf);
-				//strcpy(tabla,"gprmc");
+   if (!strncmp( GPR, "$GPRMC", 5 ))
+    {
+				strcpy(Cliente,(char*)buf);	
+				strcpy(Server,Infor);
+				printf( "%s",buf);
+				strcpy(tabla,"gprmc");
 
 
-//char l1[10],lo1[10],l2[10],lo2[10];
-//double lat1,lon1,lat2,lon2;
-//int k;
-//int j;
-//for (int i=0,k=20;k<29;i++,k++)
-//{
-	//l1[i]=Cliente[k];
-	//lo1[i]=Server[k];
-//}
-//lat1=Latitud(atof(l1));
-//lat2=Latitud(atof(lo1));
+char l1[10],lo1[10],l2[10],lo2[10];
+double lat1,lon1,lat2,lon2;
+int k;
+int j;
+for (int i=0,k=20;k<29;i++,k++)
+{
+	l1[i]=Cliente[k];
+	lo1[i]=Server[k];
+}
+lat1=Latitud(atof(l1));
+lat2=Latitud(atof(lo1));
 
 
-//for (int m=0,j=32;j<42;m++,j++)
-//{
-	//l2[m]=Cliente[j];
-	//lo2[m]=Server[j];
-//}
-//lon1=Longitud(atof(l2));
-//lon2=Longitud(atof(lo2));
+for (int m=0,j=32;j<42;m++,j++)
+{
+	l2[m]=Cliente[j];
+	lo2[m]=Server[j];
+}
+lon1=Longitud(atof(l2));
+lon2=Longitud(atof(lo2));
 
 
-//double dis=distancia(lat1,lon1,lat2,lon2);  
-//printf("la dista en metros es  %f ",dis);
+double dis=distancia(lat1,lon1,lat2,lon2);  
+printf("la dista en metros es  %f ",dis);
 
     
-    //}
-    //else if (!strncmp( GPR, "$GPVTG", 5 ))
+    }
+    else if (!strncmp( GPR, "$GPVTG", 5 ))
     
-     //{
-					//strcpy(Cliente,(char*)buf);
-					//strcpy(Server,Infor);	
-					//printf( "%s",buf);
-					//strcpy(tabla,"gpvtg");
-	//}
-	//else if (!strncmp( GPR, "$GPTXT", 5 ))
-     //{
-					   //strcpy(Cliente,(char*)buf);
-					   //strcpy(Server,Infor);
-					   //printf( "%s",buf);
-					   //strcpy(tabla,"gptxt");
-	//}
-	//else if (!strncmp( GPR, "$GPGGA", 5 ))
-     //{
-						//strcpy(Cliente,(char*)buf);
-						//strcpy(Server,Infor);
-						//printf( "%s",buf);
-						//strcpy(tabla,"gpgga");
-	//}
-	//else if (!strncmp( GPR, "$GPGSA", 6 ))
-     //{
+     {
+					strcpy(Cliente,(char*)buf);
+					strcpy(Server,Infor);	
+					printf( "%s",buf);
+					strcpy(tabla,"gpvtg");
+	}
+	else if (!strncmp( GPR, "$GPTXT", 5 ))
+     {
+					   strcpy(Cliente,(char*)buf);
+					   strcpy(Server,Infor);
+					   printf( "%s",buf);
+					   strcpy(tabla,"gptxt");
+	}
+	else if (!strncmp( GPR, "$GPGGA", 5 ))
+     {
+						strcpy(Cliente,(char*)buf);
+						strcpy(Server,Infor);
+						printf( "%s",buf);
+						strcpy(tabla,"gpgga");
+	}
+	else if (!strncmp( GPR, "$GPGSA", 6 ))
+     {
 						
-	          			  //strcpy(Cliente,(char*)buf);
-					  	  //strcpy(Server,Infor);
-					  	  //printf( "%s",buf);
-						  //strcpy(tabla,"gpgsa");
+	          			  strcpy(Cliente,(char*)buf);
+					  	  strcpy(Server,Infor);
+					  	  printf( "%s",buf);
+						  strcpy(tabla,"gpgsa");
 																
-	//}
-	//else if (!strncmp( GPR, "$GPGSV", 6 ))
-     //{
+	}
+	else if (!strncmp( GPR, "$GPGSV", 6 ))
+     {
 
-							//strcpy(Cliente,(char*)buf);
-						   	 //strcpy(Server,Infor);
-						   	 //printf( "%s",buf);
-						    //strcpy(tabla,"gpgsv");
-	//}
-	//else if (!strncmp( GPR, "$GPGLL", 6 ))
-     //{
-						//strcpy(Cliente,(char*)buf);
-						//strcpy(Server,Infor);
-						//printf( "%s",buf);
-						//strcpy(tabla,"gpgll");
-	//}
+							strcpy(Cliente,(char*)buf);
+						   	 strcpy(Server,Infor);
+						   	 printf( "%s",buf);
+						    strcpy(tabla,"gpgsv");
+	}
+	else if (!strncmp( GPR, "$GPGLL", 6 ))
+     {
+						strcpy(Cliente,(char*)buf);
+						strcpy(Server,Infor);
+						printf( "%s",buf);
+						strcpy(tabla,"gpgll");
+	}
 
- //agrega(con,tabla,Node,Cliente,Server);   
-//memset(&Infor,' ', sizeof(Infor));  
-
+ agrega(con,tabla,Node,Cliente,Server);   
+memset(&Infor,' ', sizeof(Infor));  
+memset(&Cort,' ', sizeof(Cort)); 
   if (bandera==6){
 			bandera=0;
 		}
@@ -401,8 +422,8 @@ GPR = strstr((char*)buf,buffer);
       bcm2835_delay(5);
     }
   }
-//mysql_close(con);
-//fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
+mysql_close(con);
+fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
