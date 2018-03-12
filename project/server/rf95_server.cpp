@@ -204,13 +204,13 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   }
 
 
- for (int j=0;j<1000;j++)
+ for (int j=0;j<700;j++)
   {
 	  GPS[j]=serialGetchar (fd);
 }
 
      serialClose(fd);
-     //printf("*GPS**** %s **GPS******",GPS);
+     printf("*GPS**** %s **GPS******",GPS);
 
 //break;
 
@@ -266,7 +266,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           if (rf95.recv(buf, &len)) {
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-            //printbuffer(buf, len);
+            printbuffer(buf, len);
             
             
 char buffer[6]={};
@@ -278,7 +278,7 @@ char *GPR;
 char *Find;
 char *p;
 strncpy (buffer, (char*)buf,6);
-printf("buffer ***%s****\n",buffer);
+//printf("buffer ***%s****\n",buffer);
 
 
 
@@ -355,18 +355,18 @@ printf("FIND ***%s****\n",Find);
 						strcpy(tabla,"gpgll");
 	}
 	
-//	if (Find[0]=='$')
-//{						
+	if ((Find!=NULL && Find[0]=='$'))
+{						
 						strncpy (Cort,Find,siz);	
-						printf(" *** Cort **** %s \n",Cort);
+						//printf(" *** Cort **** %s \n",Cort);
 						char * Gs;
 						Gs=strchr(Cort,'*');
 						int gv = Gs-Cort;
 						int ind= gv+3; 
 						
 						strncpy (Server,Cort,ind);
-						printf(" *** server **** %s \n",Server);
-//}
+						//printf(" *** server **** %s \n",Server);
+}
 
  							
   
