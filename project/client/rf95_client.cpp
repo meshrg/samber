@@ -205,7 +205,7 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
     }
     else if (!strncmp( GPR, "$GPVTG", 5 ))
      {
-		siz=38;
+		siz=39;
 	}
 	else if (!strncmp( GPR, "$GPTXT", 5 ))
      {

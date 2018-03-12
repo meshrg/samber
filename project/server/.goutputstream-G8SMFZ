@@ -204,7 +204,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   }
 
 
- for (int j=0;j<1000;j++)
+ for (int j=0;j<700;j++)
   {
 	  GPS[j]=serialGetchar (fd);
 }
@@ -278,14 +278,10 @@ char *GPR;
 char *Find;
 char *p;
 strncpy (buffer, (char*)buf,6);
-printf("buffer ***%s****\n",buffer);
+//printf("buffer ***%s****\n",p);
 
-
-
-GPR = strstr((char*)buf,buffer);
 Find = strstr(GPS,buffer);
-printf("FIND ***%s****\n",Find);
-
+GPR = strstr((char*)buf,buffer);
 
    if (!strncmp( GPR, "$GPRMC", 6 ))
     {
@@ -355,8 +351,8 @@ printf("FIND ***%s****\n",Find);
 						strcpy(tabla,"gpgll");
 	}
 	
-//	if (Find[0]=='$')
-//{						
+	if (Find[0]=='$')
+{
 						strncpy (Cort,Find,siz);	
 						printf(" *** Cort **** %s \n",Cort);
 						char * Gs;
@@ -366,7 +362,7 @@ printf("FIND ***%s****\n",Find);
 						
 						strncpy (Server,Cort,ind);
 						printf(" *** server **** %s \n",Server);
-//}
+}
 
  							
   
@@ -399,14 +395,11 @@ printf("diferencia de Altura  %f",Altura);
 Dat=0;	
 }	
 
-agrega(con,tabla,Node,Cliente,Server);
-  
+agrega(con,tabla,Node,Cliente,Server);  
 memset(&Infor,' ', sizeof(Infor));  
-memset(&Find,' ', sizeof(Find));
 memset(&Cort,' ', sizeof(Cort));
-memset(&Server,' ', sizeof(Server));
-memset(&buffer,' ', sizeof(buffer));
-   
+memset(&Server,' ', sizeof(Server));  
+
   if (bandera==6){
 			bandera=0;
 		}
