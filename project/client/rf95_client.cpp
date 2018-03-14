@@ -165,20 +165,25 @@ while (l=1)
 
  
 uint8_t fd;
+serialFlush(fd);
 if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   {
+	  serialGetchar (fd);
+	  
     fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
    // return 1 ;
   }
-
- char GPS [700]={} ;
- for (int j=0;j<700;j++)
+  
+//serialFlush(fd);
+ char GPS [800]={} ;
+ for (int j=0;j<800;j++)
   {
 	  GPS[j]=serialGetchar (fd);
 }
-
+	bcm2835_delay(100);
      serialClose(fd);
-    // printf(" %s ",GPS);
+     //printf(" EL GPS ***** %s ******  con tamaño de [%d]",GPS,sizeof(GPS));
+     //printf("  \n");
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
@@ -198,7 +203,11 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 
 
  GPR = strstr(GPS,ABR[bandera]);
- //GPR = strstr(GPS,ABR[3]);
+ //printf(" Gpr tiene %s ",GPR);
+ 
+ if ((GPR!=NULL) && GPR[0]=='$')
+ {
+	 
    if (!strncmp( GPR, "$GPRMC", 5 ))
     {
       siz=71;
@@ -229,9 +238,18 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 		siz=50;
 		}	
 				strncpy (info, GPR,siz); 
-				//printf(" gpgga imprime %s \n ",info);     
+				//printf(" INFO imprime %s \n ",info); 
+				//printf("\n");
+				
+				//printf(" se hara la vertificacion checksum **");    
 				     char * Gs;
 					Gs=strchr(info,'*');
+				//printf(" se realizo  vertificacion checksum **");		
+
+					//if (Gs[0]=='*') 
+					//{
+					//printf("\n");printf("\n");
+				//printf("El *  es la posicion Gs[%c]",Gs[0]);
 					int gv = Gs-info;
 					int ind= gv+3; 
 				strncpy ((char *)data, info, ind);
@@ -270,7 +288,7 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
        rf95.waitPacketSent();
        memset(&data,' ', sizeof(data));     
        memset(&info,' ', sizeof(info));
-       
+       //serialFlush(fd);
  }
  
   break;
@@ -278,6 +296,8 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
      
    }
        }
+    //} // * correcto   
+   } // exista NULL 
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
       if (led_blink && millis()-led_blink>200) {

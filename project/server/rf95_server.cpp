@@ -48,7 +48,7 @@ using namespace std;
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.120"//"192.168.0.8"
+#define HOST "10.1.135.109"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -199,16 +199,17 @@ while (!force_exit) {
 uint8_t fd;
 if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   {
+	 
     fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
    // return 1 ;
   }
-
+ //serialFlush(fd);
 
  for (int j=0;j<700;j++)
   {
 	  GPS[j]=serialGetchar (fd);
 }
-
+	 bcm2835_delay(100);
      serialClose(fd);
      printf("*GPS**** %s **GPS******",GPS);
 
@@ -403,6 +404,7 @@ agrega(con,tabla,Node,Cliente,Server);
   
 memset(&Infor,' ', sizeof(Infor));  
 memset(&Find,' ', sizeof(Find));
+memset(&tabla,' ', sizeof(tabla));
 memset(&Cort,' ', sizeof(Cort));
 memset(&Server,' ', sizeof(Server));
 memset(&buffer,' ', sizeof(buffer));
