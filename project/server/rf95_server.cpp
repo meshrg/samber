@@ -191,6 +191,14 @@ int contador=0;
     printf( " OK NodeID=%d @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
     printf( "Listening packet...\n" );
 
+con=mysql_init(NULL);	
+    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				{	
+	fprintf(stderr, "%s\n", mysql_error(con));
+	 exit(1);
+				}
+
+
 //PUERTO  SERIAL
 while (!force_exit) {
 
@@ -211,7 +219,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 }
 	 bcm2835_delay(100);
      serialClose(fd);
-     printf("*GPS**** %s **GPS******",GPS);
+     //printf("*GPS**** %s **GPS******",GPS);
 
 //break;
 
@@ -219,14 +227,8 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 
 
 //
-
     //Begin the main body of code
-    con=mysql_init(NULL);	
-    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
-				{	
-	fprintf(stderr, "%s\n", mysql_error(con));
-	 exit(1);
-				}	
+    	
    //while (!force_exit) {
   //int dos=1;
  
@@ -267,7 +269,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           if (rf95.recv(buf, &len)) {
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-            printbuffer(buf, len);
+           // printbuffer(buf, len);
             
             
 char buffer[6]={};
@@ -285,7 +287,7 @@ strncpy (buffer, (char*)buf,6);
 
 GPR = strstr((char*)buf,buffer);
 Find = strstr(GPS,buffer);
-printf("FIND ***%s****\n",Find);
+//printf("FIND ***%s****\n",Find);
 
 
    if (!strncmp( GPR, "$GPRMC", 6 ))
@@ -401,6 +403,7 @@ Dat=0;
 }	
 
 agrega(con,tabla,Node,Cliente,Server);
+
   
 memset(&Infor,' ', sizeof(Infor));  
 memset(&Find,' ', sizeof(Find));
