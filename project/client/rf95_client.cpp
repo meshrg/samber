@@ -182,8 +182,8 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 }
 	bcm2835_delay(100);
      serialClose(fd);
-     //printf(" EL GPS ***** %s ******  con tamaño de [%d]",GPS,sizeof(GPS));
-     //printf("  \n");
+     printf(" EL GPS ***** %s ******  con tamaño de [%d]",GPS,sizeof(GPS));
+     printf("  \n");
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
@@ -203,7 +203,7 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 
 
  GPR = strstr(GPS,ABR[bandera]);
- //printf(" Gpr tiene %s ",GPR);
+ printf(" Gpr tiene %s ",GPR);
  
  if ((GPR!=NULL) && GPR[0]=='$')
  {
@@ -240,14 +240,13 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 				strncpy (info, GPR,siz); 
 				//printf(" INFO imprime %s \n ",info); 
 				//printf("\n");
-				
-				//printf(" se hara la vertificacion checksum **");    
+				 **");    
 				     char * Gs;
 					Gs=strchr(info,'*');
-				//printf(" se realizo  vertificacion checksum **");		
+					
 
-					//if (Gs[0]=='*') 
-					//{
+					if (Gs!=NULL) 
+					{
 					//printf("\n");printf("\n");
 				//printf("El *  es la posicion Gs[%c]",Gs[0]);
 					int gv = Gs-info;
@@ -296,7 +295,7 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
      
    }
        }
-    //} // * correcto   
+    } // * correcto   
    } // exista NULL 
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
