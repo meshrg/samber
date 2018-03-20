@@ -48,7 +48,7 @@ using namespace std;
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.109"//"192.168.0.8"
+#define HOST "10.1.135.86"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -59,7 +59,7 @@ char Server[74];
 char GPS[700]={} ;
 
 char tabla[]= ""; 
-char buffer[74];
+char buffer[6]={};
 char Infor[74];
 char Cort[74];
 int band;
@@ -210,7 +210,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 }
 
      serialClose(fd);
-     printf("*GPS**** %s **GPS******",GPS);
+     //printf("*GPS**** %s **GPS******",GPS);
 
 //break;
 
@@ -266,10 +266,9 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           if (rf95.recv(buf, &len)) {
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-            printbuffer(buf, len);
+           printbuffer(buf, len);
             
-            
-char buffer[6]={};
+//memset(&buffer,' ', sizeof(buffer));
 char Node[3];
 int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
@@ -283,10 +282,12 @@ strncpy (buffer, (char*)buf,6);
 
 
 GPR = strstr((char*)buf,buffer);
+//printf("GPR***%s****\n",GPR);
 Find = strstr(GPS,buffer);
-printf("FIND ***%s****\n",Find);
+//printf("FIND ***%s****\n",Find);
 
-
+if (GPR!=NULL) {
+	
    if (!strncmp( GPR, "$GPRMC", 6 ))
     {
 				strcpy(Cliente,(char*)buf);	
@@ -354,9 +355,11 @@ printf("FIND ***%s****\n",Find);
 						printf( "%s",buf);
 						strcpy(tabla,"gpgll");
 	}
-	
-	if ((Find!=NULL && Find[0]=='$'))
-{						
+}	
+//printf("llega aqui 0");				
+  	
+	if ( (Find!=NULL) && (Find[0]=='$'))
+		{						
 						strncpy (Cort,Find,siz);	
 						//printf(" *** Cort **** %s \n",Cort);
 						char * Gs;
@@ -366,48 +369,51 @@ printf("FIND ***%s****\n",Find);
 						int ind= gv+3; 
 						
 						strncpy (Server,Cort,ind);
-						//printf(" *** server **** %s \n",Server);
+					 printf(" * server Ok *" );
 					}
-}
 
- 							
+
+ 			//printf("llega aqui 1");				
   
-if (Dat==1)
-{
-strncpy(l1,Cliente+20,9);
-lat1=Latitud(atof(l1));
-strncpy(l2,Cliente+32,10);
-lon1=Longitud(atof(l2));
-strncpy(lo1,Server+20,9);
-lat2=Latitud(atof(lo1));
-strncpy(lo2,Server+32,10);
-lon2=Longitud(atof(lo2));
-//printf (" %s %s",lo1,lo2);	
+				if (Dat==1)
+				{
+				strncpy(l1,Cliente+20,9);
+				lat1=Latitud(atof(l1));
+				strncpy(l2,Cliente+32,10);
+				lon1=Longitud(atof(l2));
+				strncpy(lo1,Server+20,9);
+				lat2=Latitud(atof(lo1));
+				strncpy(lo2,Server+32,10);
+				lon2=Longitud(atof(lo2));
+				//printf (" %s %s",lo1,lo2);	
 
-double dis=distancia(lat1,lon1,lat2,lon2);  
-printf("la dista en metros es  %f ",dis);
-Dat=0;
-}
+				double dis=distancia(lat1,lon1,lat2,lon2);  
+				printf("la dista en metros es  %f ",dis);
+				Dat=0;
+				}
 
-else if (Dat==2)
-{
-strncpy(A2,Server+52,6);
-//printf("Altura S %s",A2);
-alt1=(atof(A));
-alt2=(atof(A2));
+				else if (Dat==2)
+				{
+				strncpy(A2,Server+52,6);
+				//printf("Altura S %s",A2);
+				alt1=(atof(A));
+				alt2=(atof(A2));
 
-Altura=abs(alt1-alt2);
-printf("diferencia de Altura  %f",Altura);
-Dat=0;	
-}	
+				Altura=abs(alt1-alt2);
+				printf("diferencia de Altura  %f",Altura);
+				Dat=0;	
+				}	
 
-agrega(con,tabla,Node,Cliente,Server);
+//printf("llega aqui 2");				
+
+} // Null 
+agrega(con,tabla,Node,Cliente,Server); 
   
-memset(&Infor,' ', sizeof(Infor));  
-memset(&Find,' ', sizeof(Find));
-memset(&Cort,' ', sizeof(Cort));
-memset(&Server,' ', sizeof(Server));
-memset(&buffer,' ', sizeof(buffer));
+				memset(&Find,' ', sizeof(Find));
+				memset(&Cort,' ', sizeof(Cort));
+				memset(&Server,' ', sizeof(Server));
+				memset(&Infor,' ', sizeof(Infor));  
+				memset(&buffer,' ', sizeof(buffer));
    
   if (bandera==6){
 			bandera=0;
