@@ -48,7 +48,7 @@ using namespace std;
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.86"//"192.168.0.8"
+#define HOST "10.1.135.91"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -187,6 +187,13 @@ int contador=0;
 
  // We're ready to listen for incoming message
     rf95.setModeRx();
+    
+   con=mysql_init(NULL);	
+    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				{	
+	fprintf(stderr, "%s\n", mysql_error(con));
+	 exit(1);
+				} 
 
     printf( " OK NodeID=%d @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
     printf( "Listening packet...\n" );
@@ -220,12 +227,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 //
 
     //Begin the main body of code
-    con=mysql_init(NULL);	
-    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
-				{	
-	fprintf(stderr, "%s\n", mysql_error(con));
-	 exit(1);
-				}	
+    	
    //while (!force_exit) {
   //int dos=1;
  
@@ -266,7 +268,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           if (rf95.recv(buf, &len)) {
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-           printbuffer(buf, len);
+          // printbuffer(buf, len);
             
 //memset(&buffer,' ', sizeof(buffer));
 char Node[3];
@@ -369,7 +371,7 @@ if (GPR!=NULL) {
 						int ind= gv+3; 
 						
 						strncpy (Server,Cort,ind);
-					 printf(" * server Ok *" );
+					 printf("server Ok" );
 					}
 
 
