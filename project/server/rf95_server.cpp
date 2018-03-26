@@ -48,7 +48,7 @@ using namespace std;
 #define RF_NODE_ID    1
 
 //MYSQL
-#define HOST "10.1.135.91"//"192.168.0.8"
+#define HOST "localhost"//"192.168.0.8"
 #define USER "samber" 
 #define PASS "cidte"
 #define DB "GPS"
@@ -271,7 +271,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           // printbuffer(buf, len);
             
 //memset(&buffer,' ', sizeof(buffer));
-char Node[3];
+//char Node[3];
 int Nod = from ;
 snprintf(Node, 3, "%d", Nod);
 
@@ -288,7 +288,7 @@ GPR = strstr((char*)buf,buffer);
 Find = strstr(GPS,buffer);
 //printf("FIND ***%s****\n",Find);
 
-if (GPR!=NULL) {
+if ((GPR!=NULL) && GPR[0]=='$') {
 	
    if (!strncmp( GPR, "$GPRMC", 6 ))
     {
@@ -366,6 +366,7 @@ if (GPR!=NULL) {
 						//printf(" *** Cort **** %s \n",Cort);
 						char * Gs;
 						Gs=strchr(Cort,'*');
+						
 						if (Gs!=NULL) {
 						int gv = Gs-Cort;
 						int ind= gv+3; 

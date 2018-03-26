@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-
+#include <mysql/mysql.h>
 #include <wiringSerial.h>
 #include <RH_RF69.h>
 #include <RH_RF95.h>
@@ -41,13 +41,22 @@
 // Our RFM95 Configuration 
 #define RF_FREQUENCY  915.00
 #define RF_GATEWAY_ID 1 
-#define RF_NODE_ID    10
+#define RF_NODE_ID    7
+
+
+#define HOST "localhost"
+#define USER "samber" 
+#define PASS "cidte"
+#define DB "GPS"
 
 long double alto=1000000; 
 int bandera=0;
 int siz;		
 long double contador=0; 
-char info[74]={};		
+char info[74]={};
+char Cliente[74];
+char tabla[]= "";		
+char Node[3];
 uint8_t data[74]={};
 
 
@@ -57,6 +66,7 @@ RH_RF95 rf95(RF_CS_PIN, RF_IRQ_PIN);
 //RH_RF95 rf95(RF_CS_PIN);
 
 //Flag for Ctrl-C
+
 volatile sig_atomic_t force_exit = false;
 //void lectura_GPS ();
 void sig_handler(int sig)
@@ -65,9 +75,22 @@ void sig_handler(int sig)
   force_exit=true;
 }
 
+void agrega (MYSQL* con, char *tabla, char* Node,char*Cliente);
+
+
 
 int main (int argc, const char* argv[] )
 {
+	
+		//MYSQL
+MYSQL *con;
+MYSQL_ROW row;
+MYSQL_RES *res;
+char consulta0 [1024];
+
+
+	
+	
   static unsigned long last_millis;
   static unsigned long led_blink = 0;
   
@@ -155,13 +178,21 @@ int main (int argc, const char* argv[] )
     rf95.setHeaderTo(RF_GATEWAY_ID);  
   //GPS();
     printf("RF95 node #%d init OK @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
- int l=1;
-    last_millis = millis();
+ //int l=1;
+    //last_millis = millis();
+    
+    con=mysql_init(NULL);	
+    if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
+				{	
+	fprintf(stderr, "%s\n", mysql_error(con));
+	 exit(1);
+				}	
+				
    while (!force_exit) {
 	       
    
-while (l=1)
-{  
+//while (l=1)
+//{  
 
  
 uint8_t fd;
@@ -180,15 +211,15 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   {
 	  GPS[j]=serialGetchar (fd);
 }
-	bcm2835_delay(100);
+	bcm2835_delay(1000);
      serialClose(fd);
-     printf(" EL GPS ***** %s ******  con tamaño de [%d]",GPS,sizeof(GPS));
-     printf("  \n");
+     //printf(" EL GPS ***** %s ******  ",GPS);
+     //printf("  \n");
 
       //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
 
        //Send every 5 seconds
-      if ( millis() - last_millis > 5000 ) {
+      //if ( millis() - last_millis > 5000 ) {
         //last_millis = millis();
 
 #ifdef RF_LED_PIN
@@ -197,105 +228,112 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 #endif
 	  
 	
-char *GPR;
-const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  //
 
-
-
- GPR = strstr(GPS,ABR[bandera]);
- printf(" Gpr tiene %s ",GPR);
- 
- if ((GPR!=NULL) && GPR[0]=='$')
- {
+	//int Nod = RF_NODE_ID ;
+snprintf(Node, 3, "%d",RF_NODE_ID );
+//printf("Node es %s",Node);
+	
+			char *GPR;
+			const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  //
+			GPR = strstr(GPS,ABR[bandera]);
+	
+				 
+		if ((GPR!=NULL) && GPR[0]=='$')
+			{
 	 
-   if (!strncmp( GPR, "$GPRMC", 5 ))
-    {
-      siz=71;
-    }
-    else if (!strncmp( GPR, "$GPVTG", 5 ))
-     {
-		siz=39;
-	}
-	else if (!strncmp( GPR, "$GPTXT", 5 ))
-     {
-		siz=33;
-	}
-	else if (!strncmp( GPR, "$GPGGA", 5 ))
-     {
-		siz=74;
-	}
-	else if (!strncmp( GPR, "$GPGSA", 6 ))
-     {
-		
-		siz=62;
-	}
-	else if (!strncmp( GPR, "$GPGSV", 5 ))
-     {
-		siz=69;
-	}
-	else if (!strncmp( GPR, "$GPGLL", 5 ))
-     {
-		siz=50;
-		}	
-				strncpy (info, GPR,siz); 
-				//printf(" INFO imprime %s \n ",info); 
-				//printf("\n");
-				 **");    
-				     char * Gs;
-					Gs=strchr(info,'*');
+			   if (!strncmp( GPR, "$GPRMC", 5 ))
+				{
+				  siz=71;
+				   strcpy(tabla,"gprmc");
+				}
+				else if (!strncmp( GPR, "$GPVTG", 5 ))
+				 {
+					siz=39;
+					 strcpy(tabla,"gpvtg");
+				}
+				else if (!strncmp( GPR, "$GPTXT", 5 ))
+				 {
+					siz=33;
+					 strcpy(tabla,"gptxt");
+				}
+				else if (!strncmp( GPR, "$GPGGA", 5 ))
+				 {
+					siz=74;
+					 strcpy(tabla,"gpgga");
+				}
+				else if (!strncmp( GPR, "$GPGSA", 6 ))
+				 {
+					
+					siz=62;
+					 strcpy(tabla,"gpgsa");
+				}
+				else if (!strncmp( GPR, "$GPGSV", 5 ))
+				 {
+					siz=69;
+					 strcpy(tabla,"gpgsv");
+				}
+				else if (!strncmp( GPR, "$GPGLL", 5 ))
+				 {
+					siz=50;
+					 strcpy(tabla,"gpgll");
+					}	
+								strncpy (info, GPR,siz); 
+								 //printf("Tabla es %s",tabla);
+								 char * Gs;
+								Gs=strchr(info,'*');
 					
 
-					if (Gs!=NULL) 
-					{
-					//printf("\n");printf("\n");
-				//printf("El *  es la posicion Gs[%c]",Gs[0]);
-					int gv = Gs-info;
-					int ind= gv+3; 
-				strncpy ((char *)data, info, ind);
+										if (Gs!=NULL) 
+										{
+										int gv = Gs-info;
+										int ind= gv+3; 
+									strncpy ((char *)data, info, ind);
+									strcpy (Cliente,(char *)data);
+									//printf("Cliente es %s",Cliente);
+						
+						
 				
-		if (bandera==6){
-			bandera=0;
-		}
-		else {
-			bandera++;
-		}
-		if (contador==alto) {
-		
-		return EXIT_SUCCESS;
- }
+															if (bandera==6){
+																bandera=0;
+															}
+															else {
+																bandera++;
+															}
+															if (contador==alto) {
+															
+															return EXIT_SUCCESS;
+																				}
 
- //else if(contador==slep) {
-	 //printf("se dormira ");
-		//sleep(10);
-		//bcm2835_delay(150);
-		 //rf95.available();
-		//contador=0;
-		//cont_mil=cont_mil+1;
-		//printf("\n");
-		
-//}
 
- if (data[0]=='$')
- {
 
-  uint8_t len = sizeof(data);
-  printf("Enviando [%lf]  al node #%d => ",contador ,RF_GATEWAY_ID );
-	   contador= contador+1;
-       printbuffer(data, len);
-       printf (" \n");printf (" \n");printf (" \n");
-       rf95.send(data, len);
-       rf95.waitPacketSent();
-       memset(&data,' ', sizeof(data));     
-       memset(&info,' ', sizeof(info));
-       //serialFlush(fd);
- }
+																		 if (data[0]=='$')
+																		 {
+
+																		  uint8_t len = sizeof(data);
+																		  printf("Enviando [%lf]  al node #%d => ",contador ,RF_GATEWAY_ID );
+																			   contador= contador+1;
+																			   printbuffer(data, len);
+																			  agrega(con,tabla,Node,Cliente); 
+																			   printf (" \n");printf (" \n");
+																			   rf95.send(data, len);
+																			   rf95.waitPacketSent();
+																			   memset(&data,' ', sizeof(data));     
+																			   memset(&info,' ', sizeof(info));
+																			   memset(&Cliente,' ', sizeof(Cliente));
+																			   //serialFlush(fd);
+																		 }
  
-  break;
-     }
+ // break;
+										  }
      
-   }
-       }
-    } // * correcto   
+				}
+				
+		else {		
+			printf("NO SIGNAL GPS");	
+				
+			}
+       //}
+    //} // * correcto   
    } // exista NULL 
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
@@ -312,6 +350,8 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
 //}
   //}
   
+mysql_close(con);
+fprintf(stdout,"\n .-> Desconectado a base de datos: %s\n",DB);
 
 #ifdef RF_LED_PIN
   digitalWrite(RF_LED_PIN, LOW );
@@ -319,6 +359,14 @@ const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$G
   printf( "\n%s Ending\n", __BASEFILE__ );
   bcm2835_close();
   return 0;
+}
+
+
+void agrega(MYSQL* con,char*tabla, char* Node,char*Cliente)
+{
+char consulta[1024];
+sprintf(consulta,"INSERT INTO %s VALUES ('%f','%s')",tabla,Node,Cliente);
+if(mysql_query(con,consulta)==0) fprintf(stdout,"\n Datos insertados con exito\n");
 }
 
 
