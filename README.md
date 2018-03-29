@@ -270,6 +270,7 @@ CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74));
 CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62));
 CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69));
 CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
+```
 
 para salir solo con CTRL C
 
