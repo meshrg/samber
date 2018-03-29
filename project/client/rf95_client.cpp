@@ -178,9 +178,7 @@ char consulta0 [1024];
     rf95.setHeaderTo(RF_GATEWAY_ID);  
   //GPS();
     printf("RF95 node #%d init OK @ %3.2fMHz\n", RF_NODE_ID, RF_FREQUENCY );
- //int l=1;
-    //last_millis = millis();
-    
+ 
     con=mysql_init(NULL);	
     if(!mysql_real_connect(con, HOST, USER, PASS, DB, 3306, NULL,0))
 				{	
@@ -190,9 +188,6 @@ char consulta0 [1024];
 				
    while (!force_exit) {
 	       
-   
-//while (l=1)
-//{  
 
  
 uint8_t fd;
@@ -204,8 +199,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
     fprintf (stderr, "Unable to open serial device: %s\n", strerror (errno)) ;
    // return 1 ;
   }
-  
-//serialFlush(fd);
+
  char GPS [800]={} ;
  for (int j=0;j<800;j++)
   {
@@ -213,14 +207,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 }
 	bcm2835_delay(1000);
      serialClose(fd);
-     //printf(" EL GPS ***** %s ******  ",GPS);
-     //printf("  \n");
-
-      //printf( "millis()=%ld last=%ld diff=%ld\n", millis() , last_millis,  millis() - last_millis );
-
-       //Send every 5 seconds
-      //if ( millis() - last_millis > 5000 ) {
-        //last_millis = millis();
+     
 
 #ifdef RF_LED_PIN
         led_blink = millis();
@@ -229,10 +216,7 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 	  
 	
 
-	//int Nod = RF_NODE_ID ;
-snprintf(Node, 3, "%d",RF_NODE_ID );
-//printf("Node es %s",Node);
-	
+			snprintf(Node, 3, "%d",RF_NODE_ID );	
 			char *GPR;
 			const char * ABR[7] = {"$GPRMC","$GPVTG","$GPTXT","$GPGGA","$GPGSA","$GPGSV","$GPGLL"};  //
 			GPR = strstr(GPS,ABR[bandera]);
@@ -278,7 +262,6 @@ snprintf(Node, 3, "%d",RF_NODE_ID );
 					 strcpy(tabla,"gpgll");
 					}	
 								strncpy (info, GPR,siz); 
-								 //printf("Tabla es %s",tabla);
 								 char * Gs;
 								Gs=strchr(info,'*');
 					
@@ -289,7 +272,7 @@ snprintf(Node, 3, "%d",RF_NODE_ID );
 										int ind= gv+3; 
 									strncpy ((char *)data, info, ind);
 									strcpy (Cliente,(char *)data);
-									//printf("Cliente es %s",Cliente);
+									
 						
 						
 				
@@ -320,20 +303,17 @@ snprintf(Node, 3, "%d",RF_NODE_ID );
 																			   memset(&data,' ', sizeof(data));     
 																			   memset(&info,' ', sizeof(info));
 																			   memset(&Cliente,' ', sizeof(Cliente));
-																			   //serialFlush(fd);
+																			 
 																		 }
- 
- // break;
 										  }
      
 				}
 				
 		else {		
-			printf("NO SIGNAL GPS");	
+			printf("NO SIGNAL GPS \n");	
 				
 			}
-       //}
-    //} // * correcto   
+  
    } // exista NULL 
 #ifdef RF_LED_PIN
       // Led blink timer expiration ?
