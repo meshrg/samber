@@ -212,7 +212,7 @@ base de datos.
 
 MariaDB> quit
 
-***Entrar a una base de datos mysql** 
+**Entrar a una base de datos mysql** 
 
 Con el comando siguientes es para acceder a la base de datos
 ```shell
@@ -276,8 +276,10 @@ para salir solo con CTRL C
 
 
 
-## Server
+
+##  Server
 ============================================================================================================
+
 
 
 **ACCESO REMOTO A MYSQL**
@@ -288,9 +290,11 @@ todas las peticiones de conexiones entrantes, adicionalmente, cada usuario se pu
 Para habilitar las peticiones remotas se debe de modificar el archivo /et c/m y sql /mar i ad b.con f .d /50−
 ser ver.cn f .
 
+
 ```shell
 $ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
+
 
 El parámetro bind−address = 127,0,0,1 delimita las direcciones IP donde se pueden realizar
 las conexiones entrantes, para permitir la conexión desde cualquier dirección IP este se cambia
@@ -456,9 +460,9 @@ Mayor informacion [Aqui][2]
 
 
 
+## Ejecucion del Programa 
+============================================================================================================
 
-
-**Ejecucion del Programa**
 
 1. Abrir la Terminal y Buscar la ubicaciones de la carpeta Samber
 2. seguir la siguiente ruta
