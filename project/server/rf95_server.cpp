@@ -217,7 +217,8 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
 }
 
      serialClose(fd);
-     //printf("*GPS**** %s **GPS******",GPS);
+     //printf("*GPS**** %s **GPS******\n",GPS);
+     printf("\n");
 
 //break;
 
@@ -355,18 +356,23 @@ Find = strstr(GPS,buffer);
 														strcpy(tabla,"gpgll");
 									}
 											
-													strncpy (Cort,Find,siz);	
+							}
+							
+				if ((Find!=NULL) && Find[0]=='$') 
+						 {			
+											
+													strncpy (Cort,Find,74);	
 													//printf(" *** Cort **** %s \n",Cort);
 													char * Gs;
 													Gs=strchr(Cort,'*');
 													
-													if (Gs!=NULL) {
+								if (Gs!=NULL) {
 													int gv = Gs-Cort;
 													int ind= gv+3; 
 													
 													strncpy (Server,Cort,ind);
-												 //printf("server Ok" );
-																}			
+												    //printf(" *****SERVER %s***",Server );
+																			
   
 													if (Dat==1)
 													{
@@ -401,8 +407,8 @@ Find = strstr(GPS,buffer);
 													Dat=0;	
 																			}
 													}				
-
-									} // Null 
+										}
+							} // Null 
 agrega(con,tabla,Node,Cliente,Server); 
   
 				memset(&Find,' ', sizeof(Find));
@@ -410,6 +416,8 @@ agrega(con,tabla,Node,Cliente,Server);
 				memset(&Server,' ', sizeof(Server));
 				memset(&Infor,' ', sizeof(Infor));  
 				memset(&buffer,' ', sizeof(buffer));
+				memset(&tabla,' ', sizeof(tabla));  
+				memset(&Cliente,' ', sizeof(Cliente));
 		
 		//bcm2835_delay(150);
 		//system("clear");
