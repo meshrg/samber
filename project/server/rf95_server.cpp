@@ -44,7 +44,7 @@ using namespace std;
 #include "../RasPiBoards.h"
 
 // Our RFM95 Configuration 
-#define RF_FREQUENCY  915.00
+#define RF_FREQUENCY  912.88
 #define RF_NODE_ID    1
 
 //MYSQL

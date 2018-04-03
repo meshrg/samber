@@ -23,7 +23,7 @@ Conetando la raspberry a una pantalla por medio del HDMI, lo primero que se debe
 
 recordar
 user: pi
-contraseña:rasberry 
+contraseña:raspberry 
 
 
 ```shell
@@ -275,7 +275,27 @@ CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
 para salir solo con CTRL C
 
 
+**Inicio automatico**
 
+
+Método para ejecutar un programa en su Raspberry Pi al inicio es modificar el  archivo .bashrc . Con el método .bashrc , su programa  se ejecutará al arrancar y también cada vez que se abra una nueva terminal o cuando se realice una nueva conexión SSH. Coloque su comando en la parte inferior de '/home/pi/.bashrc'. ¡El programa puede abortarse con 'ctrl-c' mientras se está ejecutando!
+
+
+```shell
+$ sudo nano /home/pi/.bashrc
+```
+Vaya a la última línea del script y agregue:
+
+
+```shell
+echo Bienvenido El Cliente esta iniciando.. 
+$ sudo /home/pi/samber/project/client/rf95_client
+```
+
+Por ultimo 
+```shell
+$ sudo reboot
+```
 
 
 ##  Server
@@ -451,7 +471,6 @@ CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69),GPGSV_S VARCHAR (69));
 CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50),GPGLL_S VARCHAR (50));
 ```
 
-
 para salir solo con CTRL C
 
 
@@ -459,6 +478,28 @@ para salir solo con CTRL C
 Mayor informacion [Aqui][2]
 
 
+**Inicio automatico**
+
+
+Método para ejecutar un programa en su Raspberry Pi al inicio es modificar el  archivo .bashrc . Con el método .bashrc , su programa  se ejecutará al arrancar y también cada vez que se abra una nueva terminal o cuando se realice una nueva conexión SSH. Coloque su comando en la parte inferior de '/home/pi/.bashrc'. ¡El programa puede abortarse con 'ctrl-c' mientras se está ejecutando!
+
+
+```shell
+sudo nano /home/pi/.bashrc
+```
+Vaya a la última línea del script y agregue:
+
+
+```shell
+echo Bienvenido El Server esta Iniciando.. 
+sudo /home/pi/samber/project/server/rf95_server
+```
+
+
+Por ultimo 
+```shell
+$ sudo reboot
+```
 
 
 ## Ejecucion del Programa 
