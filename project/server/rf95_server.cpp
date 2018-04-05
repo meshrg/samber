@@ -215,27 +215,10 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
   {
 	  GPS[j]=serialGetchar (fd);
 }
-
+	bcm2835_delay(1000);
      serialClose(fd);
-     //printf("*GPS**** %s **GPS******\n",GPS);
-     printf("\n");
-
-//break;
-
-
-
-
-//
-
-    //Begin the main body of code
+ 
     	
-   //while (!force_exit) {
-  //int dos=1;
- 
- 
-
- 
- 
  
 #ifdef RF_IRQ_PIN
       // We have a IRQ pin ,pool it instead reading
@@ -269,7 +252,6 @@ if ((fd = serialOpen ("/dev/ttyS0", 9600)) < 0)
           if (rf95.recv(buf, &len)) {
             printf("Packet [%02d]  #%d => #%d %ddB: ",contador,  from, to, rssi);
             contador = contador+1;
-          // printbuffer(buf, len);
 
 
 int Nod = from ;
@@ -279,14 +261,11 @@ char *GPR;
 char *Find;
 char *p;
 strncpy (buffer, (char*)buf,6);
-//printf("buffer ***%s****\n",buffer);
 
 
 
 GPR = strstr((char*)buf,buffer);
-//printf("GPR***%s****\n",GPR);
 Find = strstr(GPS,buffer);
-//printf("FIND ***%s****\n",Find);
 
 				if ((GPR!=NULL) && GPR[0]=='$') 
 						 {
@@ -294,7 +273,6 @@ Find = strstr(GPS,buffer);
 								   if (!strncmp( GPR, "$GPRMC", 6 ))
 									{
 												strcpy(Cliente,(char*)buf);	
-												//strcpy(Server,Infor);
 												siz=71;
 												printf( "%s",buf);
 												strcpy(tabla,"gprmc");
@@ -304,16 +282,14 @@ Find = strstr(GPS,buffer);
 									else if (!strncmp( GPR, "$GPVTG", 6 ))
 									
 									 {
-													strcpy(Cliente,(char*)buf);
-													//strcpy(Server,Infor);	
+													strcpy(Cliente,(char*)buf);	
 													siz=39;
 													printf( "%s",buf);
 													strcpy(tabla,"gpvtg");
 									}
 									else if (!strncmp( GPR, "$GPTXT", 6 ))
 									 {
-													   strcpy(Cliente,(char*)buf);
-													  //strcpy(Server,Infor);
+													   strcpy(Cliente,(char*)buf);													  
 													   siz=33;
 													   printf( "%s",buf);
 													   strcpy(tabla,"gptxt");
@@ -325,14 +301,12 @@ Find = strstr(GPS,buffer);
 														Dat=2;
 														siz=74;
 														printf( "%s \n",buf);
-														//printf("Altura de %s",A);
 														strcpy(tabla,"gpgga");
 									}
 									else if (!strncmp( GPR, "$GPGSA", 6 ))
 									 {
 														
 														  strcpy(Cliente,(char*)buf);
-														  //strcpy(Server,Infor);
 														  siz=62;
 														  printf( "%s",buf);
 														  strcpy(tabla,"gpgsa");
@@ -341,8 +315,7 @@ Find = strstr(GPS,buffer);
 									else if (!strncmp( GPR, "$GPGSV", 6 ))
 									 {
 
-															strcpy(Cliente,(char*)buf);
-															//strcpy(Server,Infor);
+															strcpy(Cliente,(char*)buf);														
 															 siz=69;
 															 printf( "%s",buf);
 															strcpy(tabla,"gpgsv");
@@ -350,7 +323,6 @@ Find = strstr(GPS,buffer);
 									else if (!strncmp( GPR, "$GPGLL", 6 ))
 									 {
 														strcpy(Cliente,(char*)buf);
-														//strcpy(Server,Infor);
 														siz=50;
 														printf( "%s",buf);
 														strcpy(tabla,"gpgll");
@@ -362,7 +334,6 @@ Find = strstr(GPS,buffer);
 						 {			
 											
 													strncpy (Cort,Find,74);	
-													//printf(" *** Cort **** %s \n",Cort);
 													char * Gs;
 													Gs=strchr(Cort,'*');
 													
@@ -371,45 +342,45 @@ Find = strstr(GPS,buffer);
 													int ind= gv+3; 
 													
 													strncpy (Server,Cort,ind);
-												    //printf(" *****SERVER %s***",Server );
-																			
-  
+
 													if (Dat==1)
 													{
-													strncpy(l1,Cliente+20,9);
-													lat1=Latitud(atof(l1));
-													strncpy(l2,Cliente+32,10);
-													lon1=Longitud(atof(l2));
-													strncpy(lo1,Server+20,9);
-													lat2=Latitud(atof(lo1));
-													strncpy(lo2,Server+32,10);
-													lon2=Longitud(atof(lo2));
-													//printf (" %s %s",lo1,lo2);	
+														strncpy(l1,Cliente+20,9);
+														lat1=Latitud(atof(l1));
+														strncpy(l2,Cliente+32,10);
+														lon1=Longitud(atof(l2));
+														strncpy(lo1,Server+20,9);
+														lat2=Latitud(atof(lo1));
+														strncpy(lo2,Server+32,10);
+														lon2=Longitud(atof(lo2));
+		
 													
-													if(l1[0]!=',') {
-													double dis=distancia(lat1,lon1,lat2,lon2); 
-													printf("\n"); 
-													printf("Cliente esta a  %f metros \n",dis);
-													Dat=0;
-												           }
+														if(l1[0]!=',') 
+																	{
+																double dis=distancia(lat1,lon1,lat2,lon2); 
+																printf("\n"); 
+																printf("Cliente esta a  %f metros \n",dis);
+																Dat=0;
+																	}
 													}
 
-													else if (Dat==2)
-													{
+										else if (Dat==2)
+											{
 													strncpy(A2,Server+52,6);
 													alt1=(atof(A));
 													alt2=(atof(A2));
-
 													Altura=abs(alt1-alt2);
-													if((A[0]!=',') && (A2[0]!=',')){
-													printf("\n");
-													printf("Dif Altura es %f \n",Altura);
-													Dat=0;	
+													
+													if((A[0]!=',') && (A2[0]!=','))
+																		{
+																printf("\n");
+																printf("Dif Altura es %f \n",Altura);
+																Dat=0;	
 																			}
-													}				
+											}				
 										}
 							} // Null 
-agrega(con,tabla,Node,Cliente,Server); 
+				agrega(con,tabla,Node,Cliente,Server); 
   
 				memset(&Find,' ', sizeof(Find));
 				memset(&Cort,' ', sizeof(Cort));
@@ -418,10 +389,6 @@ agrega(con,tabla,Node,Cliente,Server);
 				memset(&buffer,' ', sizeof(buffer));
 				memset(&tabla,' ', sizeof(tabla));  
 				memset(&Cliente,' ', sizeof(Cliente));
-		
-		//bcm2835_delay(150);
-		//system("clear");
-    //bcm2835_delay(50);
 		
 		
 				 

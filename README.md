@@ -94,13 +94,7 @@ Se debe instalar la libreria de mariaDB
 sudo apt-get install libmariadbclient-dev
 ```
 
-***Nota***
-
-Las siguientes instrucciones son del Cliente, sin embargo tambien se utilizan en el Server.
-
-
-## Cliente 
-=========================================================================================================
+**Configuracion del  Puerto serial para leer GPS**
 
 Una Ves habilitado SPI, VNC y SSH. Se prosigue a Realizar lo siguiente, escribir en la linea de comandos:
 
@@ -164,142 +158,6 @@ $ sudo cat /dev/ttyS0
 ```
 
 Para mayor información [Aqui][1]
-
-
-
-
-
-**CREAR BASE DE DATOS  DE MYSQL**
-
-Dado que durante la instalación de MySQL se crea un root sin contraseña, es necesario
-eliminar la cuenta creada por defecto y crear una con contraseña.
-Para ello se ingresa a MySQL con privilegios de superusuario mediante el usuario root.
-
-```shell
-$ sudo mysql -u root
-```
-
-Una vez conectado al gestor de base de datos se procede a eliminar la cuenta de root de
-MySQL.
-
-```shell
-MariaDB> DROP USER 'root'@'localhost';
-```
-
-El siguiente comando crea una nueva cuenta de root con acceso desde localhost y con
-contraseña.
-
-```shell
-MariaDB> CREATE USER 'samber'@'localhost' IDENTIFIED BY 'cidte';
-```
-
-El comando de GRANT ALL PRIVILEGES otorga privilegios de crear, editar y eliminar tablas
-de la base de datos al usuario que se le indique.
-
-```shell
-MariaDB> GRANT ALL PRIVILEGES ON *.* TO 'samber'@'localhost';
-```
-
-Para actualizar los privilegios y efectuar los cambios en el usuario se utiliza el comando
-FLUSH PRIVILEGES.
-
-```shell
-MariaDB> FLUSH PRIVILEGES;
-```
-
-Una vez terminadas las modificaciones en el usuario se termina la conexión con el gestor de
-base de datos.
-
-MariaDB> quit
-
-**Entrar a una base de datos mysql** 
-
-Con el comando siguientes es para acceder a la base de datos
-```shell
- mysql -u samber -p
-```
-nos pedira que ingresar la contraseña.
-
-
-– Primero es necesario ver las bases de datos actuales, con el comando ```shell SHOW DATABASES ``` , y
-se debe crear  una nueva base de datos llamada “GPS”.
-
-```shell
->CREATE DATABASE GPS;
-```
-Ahora si vemos las bases de datos nuevamente ( SHOW DATABASES), veremos que
-nuestra base de datos “GPS” esta creada.
-
-– Ahora se debe seleccionar la base de datos para poder trabajar con ella:
-
-```shell
- >USE GPS;
-```
-
-– Una vez seleccionada la base de datos a utilizar se podra realizar consultas a ella.
-– Ahora es necesario crear  una tabla que sera con la que se  trabajara :
-
-```shell
->CREATE TABLE nombre de tabla ( nombre de primer columna INT, Nombre de segunda columna VARCHAR (70));
-```
-
-se puede observar que despues del nombre esta la palabra INT este corresponde al tipo de datos .. en este caso es de tipo entero 
-
-En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparentesis el tamaño ()
-un ejemplo es:
-
-```shell
->CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
-```
-
-se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
-(string) de longitud 70, y un campo “Node” que es un numero de tipo entero.
-– para una consulta  a la tabla para obtener los registros existentes, como aun no añade
-ningún registro debería decir que esta vacía.
-
-```shell
->SELECT * FROM gprmc;
-```
-Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
-
-```shell
-CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
-CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (38));
-CREATE TABLE gptxt ( Node INT, GPTXT VARCHAR (33));
-CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74));
-CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62));
-CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69));
-CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
-```
-
-para salir solo con CTRL C
-
-
-**Inicio automatico**
-
-
-Método para ejecutar un programa en su Raspberry Pi al inicio es modificar el  archivo .bashrc . Con el método .bashrc , su programa  se ejecutará al arrancar y también cada vez que se abra una nueva terminal o cuando se realice una nueva conexión SSH. Coloque su comando en la parte inferior de '/home/pi/.bashrc'. ¡El programa puede abortarse con 'ctrl-c' mientras se está ejecutando!
-
-
-```shell
-$ sudo nano /home/pi/.bashrc
-```
-Vaya a la última línea del script y agregue:
-
-
-```shell
-echo Bienvenido El Cliente esta iniciando.. 
-$ sudo /home/pi/samber/project/client/rf95_client
-```
-
-Por ultimo 
-```shell
-$ sudo reboot
-```
-
-
-##  Server
-============================================================================================================
 
 
 
@@ -408,6 +266,107 @@ con el que se desea conectar.
 ```shell
 mysql -h HOST -u USERNAME -p
 ```
+
+
+**NOTA**
+EL PROCEDIMIENTO HASTA AHORA ES EL MISMO PARA CLIENTE COMO PARA SERVER PERO EN SEGUIDA SE DIVIDE SI SE UTILIZARA CLIENTE O SERVER 
+
+## Cliente 
+=========================================================================================================
+
+
+**Entrar a una base de datos mysql** 
+
+Con el comando siguientes es para acceder a la base de datos
+```shell
+ mysql -u samber -p
+```
+nos pedira que ingresar la contraseña.
+
+
+– Primero es necesario ver las bases de datos actuales, con el comando ```shell SHOW DATABASES ``` , y
+se debe crear  una nueva base de datos llamada “GPS”.
+
+```shell
+>CREATE DATABASE GPS;
+```
+Ahora si vemos las bases de datos nuevamente ( SHOW DATABASES), veremos que
+nuestra base de datos “GPS” esta creada.
+
+– Ahora se debe seleccionar la base de datos para poder trabajar con ella:
+
+```shell
+ >USE GPS;
+```
+
+– Una vez seleccionada la base de datos a utilizar se podra realizar consultas a ella.
+– Ahora es necesario crear  una tabla que sera con la que se  trabajara :
+
+```shell
+>CREATE TABLE nombre de tabla ( nombre de primer columna INT, Nombre de segunda columna VARCHAR (70));
+```
+
+se puede observar que despues del nombre esta la palabra INT este corresponde al tipo de datos .. en este caso es de tipo entero 
+
+En la segunda columna es de tipo VARCHAR por ser cadena y debe estar entreparentesis el tamaño ()
+un ejemplo es:
+
+```shell
+>CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
+```
+
+se ha  creado la tabla “gprmc” con dos campos, el campo “GPRMC” que es un varchar
+(string) de longitud 70, y un campo “Node” que es un numero de tipo entero.
+– para una consulta  a la tabla para obtener los registros existentes, como aun no añade
+ningún registro debería decir que esta vacía.
+
+```shell
+>SELECT * FROM gprmc;
+```
+Para crear otra tabla se hace el mismo procedimiento Y asi sucesivamente las demas que se  necesiten.
+
+```shell
+CREATE TABLE gprmc ( Node INT, GPRMC VARCHAR (71));
+CREATE TABLE gpvtg ( Node INT, GPVTG VARCHAR (38));
+CREATE TABLE gptxt ( Node INT, GPTXT VARCHAR (33));
+CREATE TABLE gpgga ( Node INT, GPGGA VARCHAR (74));
+CREATE TABLE gpgsa ( Node INT, GPGSA VARCHAR (62));
+CREATE TABLE gpgsv ( Node INT, GPGSV VARCHAR (69));
+CREATE TABLE gpgll ( Node INT, GPGLL VARCHAR (50));
+```
+
+para salir solo con CTRL C
+
+
+**Inicio automatico**
+
+
+Método para ejecutar un programa en su Raspberry Pi al inicio es modificar el  archivo .bashrc . Con el método .bashrc , su programa  se ejecutará al arrancar y también cada vez que se abra una nueva terminal o cuando se realice una nueva conexión SSH. Coloque su comando en la parte inferior de '/home/pi/.bashrc'. ¡El programa puede abortarse con 'ctrl-c' mientras se está ejecutando!
+
+
+```shell
+$ sudo nano /home/pi/.bashrc
+```
+Vaya a la última línea del script y agregue:
+
+
+```shell
+echo Bienvenido El Cliente esta iniciando.. 
+$ sudo /home/pi/samber/project/client/rf95_client
+```
+
+Por ultimo 
+```shell
+$ sudo reboot
+```
+
+
+##  Server
+============================================================================================================
+
+
+
+
 
 
 **CREAR BASE DE DATOS  DENTRO DE MYSQL**
